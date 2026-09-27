@@ -6,8 +6,8 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #f4f7f6;
-  color: #333;
+  background-color: #F6F8FA; /* AppColors.surfaceLight */
+  color: #06263D; /* AppColors.navyDeep */
 }
 
 .app-container {
@@ -17,15 +17,15 @@ body {
 
 .drawer {
   width: 250px;
-  background-color: #2c3e50;
+  background-color: #0B3D63; /* AppColors.navy */
   color: white;
   display: flex;
   flex-direction: column;
 }
 
 .user-info {
-  padding: 20px;
-  border-bottom: 1px solid #34495e;
+  padding: 24px; /* Insets.xl */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
 }
 
@@ -33,33 +33,35 @@ body {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background-color: #bdc3c7;
-  margin: 0 auto 10px;
+  background-color: #C9A227; /* AppColors.gold */
+  margin: 0 auto 12px;
 }
 
 .user-info h2 {
   font-size: 1.2rem;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
+  font-weight: 700;
 }
 
 .user-info p {
   font-size: 0.9rem;
-  color: #bdc3c7;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .menu ul {
   list-style: none;
-  padding: 20px 0;
+  padding: 16px 0;
 }
 
 .menu li {
-  padding: 15px 20px;
+  padding: 12px 24px;
   cursor: pointer;
   transition: background 0.3s;
+  font-weight: 600;
 }
 
 .menu li:hover {
-  background-color: #34495e;
+  background-color: #06263D; /* AppColors.navyDeep */
 }
 
 .main-content {
@@ -69,49 +71,69 @@ body {
 }
 
 .navbar {
-  background-color: #fff;
-  padding: 15px 20px;
+  background-color: #F6F8FA;
+  padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
 .nav-title {
-  font-weight: bold;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.2px;
 }
 
 .login-btn {
-  background-color: #3498db;
-  color: white;
+  background-color: #C9A227; /* AppColors.gold */
+  color: #06263D;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 12px 24px;
+  border-radius: 12px; /* Corners.md */
   cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  transition: opacity 0.2s;
+}
+
+.login-btn:hover {
+  opacity: 0.9;
 }
 
 .dashboard-body {
-  padding: 20px;
+  padding: 24px; /* Insets.xl */
 }
 
 .hero {
   background-color: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 24px;
+  border-radius: 16px; /* Corners.lg */
+  margin-bottom: 24px;
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.hero h1 {
+  color: #0B3D63;
+  margin-bottom: 8px;
 }
 
 .content-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 16px; /* Insets.lg */
 }
 
 .card {
   background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 24px;
+  border-radius: 16px; /* Corners.lg */
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.card h3 {
+  color: #8C1D40; /* AppColors.crimson */
+  margin-bottom: 8px;
 }

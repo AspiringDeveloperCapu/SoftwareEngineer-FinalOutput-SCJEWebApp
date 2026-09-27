@@ -41,26 +41,26 @@ export default function Login() {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", backgroundColor: "#f4f7f6" }}>
-      <div style={{ padding: "40px", backgroundColor: "white", borderRadius: "8px", boxShadow: "0 4px 6px rgba(0,0,0,0.1)", width: "100%", maxWidth: "400px" }}>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>SCJE / BSISM Login</h2>
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", backgroundColor: "#F6F8FA" }}>
+      <div style={{ padding: "32px", backgroundColor: "white", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", width: "100%", maxWidth: "400px" }}>
+        <h2 style={{ textAlign: "center", marginBottom: "24px", color: "#0B3D63", fontWeight: 700 }}>SCJE / BSISM Login</h2>
         
         {/* Helper info for prototype */}
-        <div style={{ marginBottom: "20px", fontSize: "0.85rem", backgroundColor: "#e8f4f8", padding: "10px", borderRadius: "4px" }}>
-          <strong>Prototype Logins (password: password123):</strong><br />
-          - student_scje@chcc.edu.ph (Full Access)<br />
-          - guest@chcc.edu.ph (View Only)
+        <div style={{ marginBottom: "24px", fontSize: "0.85rem", backgroundColor: "#F6F8FA", padding: "16px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.05)" }}>
+          <strong style={{ color: "#06263D" }}>Prototype Logins (password: password123):</strong><br />
+          <span style={{ color: "#8C1D40" }}>- student_scje@chcc.edu.ph (Full Access)</span><br />
+          <span style={{ color: "#8C1D40" }}>- guest@chcc.edu.ph (View Only)</span>
         </div>
 
-        {error && <p style={{ color: "red", fontSize: "0.9rem", marginBottom: "15px" }}>{error}</p>}
+        {error && <p style={{ color: "#8C1D40", fontSize: "0.9rem", marginBottom: "16px", textAlign: "center" }}>{error}</p>}
         
-        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <input 
             type="email" 
             placeholder="Email (e.g. student_scje@chcc.edu.ph)" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ padding: "10px", borderRadius: "4px", border: "1px solid #ccc" }}
+            style={{ padding: "16px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", outlineColor: "#0B3D63", backgroundColor: "#F6F8FA" }}
             required
           />
           <input 
@@ -68,10 +68,10 @@ export default function Login() {
             placeholder="Password" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ padding: "10px", borderRadius: "4px", border: "1px solid #ccc" }}
+            style={{ padding: "16px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", outlineColor: "#0B3D63", backgroundColor: "#F6F8FA" }}
             required
           />
-          <button type="submit" className="login-btn" style={{ padding: "12px", fontSize: "16px" }}>Login</button>
+          <button type="submit" className="login-btn" style={{ padding: "16px", fontSize: "16px", marginTop: "8px" }}>Login</button>
         </form>
       </div>
     </div>
