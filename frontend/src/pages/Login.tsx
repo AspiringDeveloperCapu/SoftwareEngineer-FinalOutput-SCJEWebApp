@@ -25,12 +25,12 @@ export default function Login() {
         return;
       }
 
-      // Store in localStorage
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Redirect based on viewOnly status
-      if (data.user.viewOnly) {
+      if (data.user.isFirstTimeLogin) {
+        navigate("/register-profile");
+      } else if (data.user.viewOnly) {
         navigate("/events");
       } else {
         navigate("/dashboard");
@@ -45,11 +45,11 @@ export default function Login() {
       <div style={{ padding: "32px", backgroundColor: "white", borderRadius: "16px", border: "1px solid rgba(0,0,0,0.05)", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", width: "100%", maxWidth: "400px" }}>
         <h2 style={{ textAlign: "center", marginBottom: "24px", color: "#0B3D63", fontWeight: 700 }}>SCJE / BSISM Login</h2>
         
-        {/* Helper info for prototype */}
         <div style={{ marginBottom: "24px", fontSize: "0.85rem", backgroundColor: "#F6F8FA", padding: "16px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.05)" }}>
           <strong style={{ color: "#06263D" }}>Prototype Logins (password: password123):</strong><br />
-          <span style={{ color: "#8C1D40" }}>- student_scje@chcc.edu.ph (Full Access)</span><br />
-          <span style={{ color: "#8C1D40" }}>- guest@chcc.edu.ph (View Only)</span>
+          <span style={{ color: "#8C1D40" }}>- crim@chcc.edu.ph (1st Time Login)</span><br />
+          <span style={{ color: "#0B3D63" }}>- ism@chcc.edu.ph (Standard Login)</span><br />
+          <span style={{ color: "#C9A227" }}>- guest@chcc.edu.ph (View Only)</span>
         </div>
 
         {error && <p style={{ color: "#8C1D40", fontSize: "0.9rem", marginBottom: "16px", textAlign: "center" }}>{error}</p>}
@@ -57,7 +57,7 @@ export default function Login() {
         <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <input 
             type="email" 
-            placeholder="Email (e.g. student_scje@chcc.edu.ph)" 
+            placeholder="Email (e.g. crim@chcc.edu.ph)" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={{ padding: "16px", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)", outlineColor: "#0B3D63", backgroundColor: "#F6F8FA" }}

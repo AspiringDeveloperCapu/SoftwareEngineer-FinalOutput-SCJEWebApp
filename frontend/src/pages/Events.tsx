@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Drawer from "../components/Drawer";
+import Navbar from "../components/Navbar";
 
 interface EventItem {
   id: number;
@@ -18,28 +19,20 @@ export default function Events() {
       .catch(err => console.error("Error fetching events", err));
   }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = '/';
-  };
-
   return (
     <div className="app-container">
       <Drawer />
       <main className="main-content">
-        <header className="navbar">
-          <div className="nav-title">Events & Announcements</div>
-          <button className="login-btn" onClick={handleLogout}>Logout</button>
-        </header>
+        <Navbar />
         
         <div className="dashboard-body">
-          <h2>All Events</h2>
-          <div className="content-grid" style={{ marginTop: "20px" }}>
+          <h2 style={{ color: "#0B3D63" }}>All Events & Announcements</h2>
+          <div className="content-grid" style={{ marginTop: "24px" }}>
             {events.length > 0 ? (
               events.map((evt) => (
                 <section key={evt.id} className="card">
-                  <h3>{evt.title} <small style={{ color: "#7f8c8d", fontSize: "0.8rem", float: "right" }}>{evt.date}</small></h3>
-                  <p style={{ marginTop: "10px" }}>{evt.description}</p>
+                  <h3>{evt.title} <small style={{ color: "#06263D", fontSize: "0.8rem", float: "right", fontWeight: 400 }}>{evt.date}</small></h3>
+                  <p style={{ marginTop: "12px", color: "#333", lineHeight: "1.5" }}>{evt.description}</p>
                 </section>
               ))
             ) : (
