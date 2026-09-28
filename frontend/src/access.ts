@@ -38,7 +38,8 @@ const BASE_LINKS: NavItem[] = [
 ];
 
 const ADMIN_LINKS: NavItem[] = [
-  { to: "/students", label: "Students", icon: "🧑‍🎓" },
+  { to: "/students", label: "Accounts", icon: "🧑‍🎓" },
+  { to: "/manage-announcements", label: "Announcements", icon: "📣" },
   { to: "/manage-events", label: "Manage Events", icon: "🗓️" },
   { to: "/manage-faculty", label: "Manage Faculty", icon: "🗂️" }
 ];

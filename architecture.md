@@ -24,13 +24,33 @@ to gate routes. Nothing else in the app hard-codes a role check.
 
 | Capability | view-only | student | instructor | admin |
 |---|---|---|---|---|
-| Events (`/events`, `/events/:id`) | ✅ | ✅ | ✅ | ✅ |
+| Events + announcements feed (`/events`, `/events/:id`) | ✅ | ✅ | ✅ | ✅ |
 | Dashboard, Instructors, Schedule, Grades, Profile | — | ✅ | ✅ | ✅ |
 | Grades scope | — | own record | department | every student |
 | Schedule scope | — | own classes | classes they teach | school-wide |
 | Dashboard stats | events only | subjects / GPA | classes handled | students / faculty / events |
-| Student roster (`/students`) | — | — | — | ✅ |
-| Manage events / manage faculty | — | — | — | ✅ |
+| Accounts (`/students`): create, edit, delete, assign roles | — | — | — | ✅ |
+| Record hub: record grade rows, manage schedule rows | — | — | — | ✅ |
+| Announcements (`/manage-announcements`): publish and pin | — | — | — | ✅ |
+| Manage events: drafts, status, pinning, finished records | — | — | — | ✅ |
+| Manage faculty | — | — | — | ✅ |
+
+**Admin safety rails.** Deleting or demoting the *last remaining
+administrator* returns `409`, so the demo can never lock itself out of the back
+office (the UI disables those controls too). Deleting an account is a hard
+delete: its grades and schedule rows go with it. Role changes are stored in the
+JWT, so they take effect on the account's next sign-in.
+
+**Event model.** Every event carries `status` (`draft` | `published` |
+`cancelled`) and a `pinned` flag. Drafts are invisible outside `/manage-events`
+(the public feed and `GET /api/events/:id` treat them as missing). One event at
+a time can be pinned — pinning one clears the rest — and the public feed offers
+**Latest / Upcoming / Finished** filters; finished events are never deleted,
+they simply move behind the Finished filter as records.
+
+**Announcements.** Admin-authored, visible to everyone on the Events page. The
+single pinned announcement (or, if none, the pinned event) is served on the
+dashboard summary as `pin`, which `PinnedHero` renders on all three dashboards.
 
 **Department logic** still applies inside the hierarchy: an instructor's grades
 and schedule are scoped to their department (`SCJE` / `ISM`), and the classes
@@ -64,20 +84,34 @@ hard-codes who sees what. It includes:
 - **User Info**: Picture, Name, a **role badge** (gold `ADMIN`, crimson
   `INSTRUCTOR`, white `STUDENT`) and Course/Department.
 - **Menu Items**: students and instructors get Dashboard, Instructors, Schedule,
-  Grades, Events; the admin tier adds Students, Manage Events and Manage Faculty;
-  a session-less (view-only) visitor gets Events alone.
+  Grades, Events; the admin tier adds Accounts, Announcements, Manage Events and
+  Manage Faculty; a session-less (view-only) visitor gets Events alone.
 
 ### Main Dashboard Body
 One route (`/dashboard`), four screens — `pages/Dashboard.tsx` is a dispatcher
-that picks by role:
-- **Student** (`dashboards/StudentDashboard.tsx`): pinned hero, enrolled
+that picks by role. All three full-access dashboards share `PinnedHero`, which
+greets the user and, when the admin has pinned something, shows that pin
+(announcement first, else the pinned event) and links to the feed:
+- **Student** (`dashboards/StudentDashboard.tsx`): hero, enrolled
   subjects / GPA / notifications, upcoming classes, recent events.
 - **Instructor** (`InstructorDashboard.tsx`): classes handled, subjects, students
   taught, then *My Classes* and recent events.
-- **Admin** (`AdminDashboard.tsx`): students / faculty / events counts, three
-  back-office shortcuts, a faculty snapshot and recent events.
+- **Admin** (`AdminDashboard.tsx`): students / faculty / events counts, four
+  back-office shortcuts (Accounts, Announcements, Manage Events, Manage
+  Faculty), a faculty snapshot and recent events.
 - **View-only** (`ViewOnlyDashboard.tsx`, `/view-only`): hero plus the full event
   list — no statistics, no academic pages.
+
+### Back office screens
+- **Accounts** (`/students`, `StudentsPage.tsx`): every account with a role badge
+  and role/program filter chips, a create form, and a **record hub** per account —
+  edit fields (including role assignment), delete, plus inline add/edit/delete for
+  grade rows and schedule rows.
+- **Manage Announcements** (`/manage-announcements`): publish, edit, delete and
+  pin (single-pin enforced by the API).
+- **Manage Events** (`/manage-events`): full list including drafts, status
+  select (draft/published/cancelled), status filter chips, pin star per row.
+- **Manage Faculty** (`/manage-faculty`): instructor/staff directory CRUD.
 
 ### Navigation Bar
 - Features the **"Administration"** dropdown. When clicked, it fetches and displays a list of current Faculty Members and Officers.

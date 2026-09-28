@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-let { mockUsers, mockEvents, mockFaculty, mockGrades, mockSchedules, mockNotifications, mockRoster } = require('./mockData');
+let { mockUsers, mockEvents, mockFaculty, mockAnnouncements, mockGrades, mockSchedules, mockNotifications, getRoster } = require('./mockData');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -39,6 +39,11 @@ function requireRole(...roles) {
 const gpaOf = (grades) =>
   grades.length > 0 ? (grades.reduce((sum, g) => sum + g.grade, 0) / grades.length).toFixed(2) : "N/A";
 
+const ROLES = ["student", "instructor", "admin"];
+const STATUSES = ["draft", "published", "cancelled"];
+
+const safeUser = ({ password, ...rest }) => rest;
+
 const studentRecord = (student) => {
   const grades = mockGrades[student.id] || [];
   return {
@@ -47,6 +52,33 @@ const studentRecord = (student) => {
     gpa: gpaOf(grades),
     totalUnits: grades.reduce((sum, g) => sum + g.units, 0)
   };
+};
+
+// The demo can only lock itself out by removing its last administrator, so the
+// guard counts them instead of trusting a hard-coded id.
+const adminCount = () => mockUsers.filter(u => u.role === "admin").length;
+
+const nextId = (rows) => Math.max(0, ...rows.map(r => r.id)) + 1;
+
+// One pin at a time: pinning a row clears it everywhere else, which keeps the
+// dashboard hero unambiguous.
+const pinExclusive = (rows, id) => rows.forEach(r => { r.pinned = r.id === id; });
+
+const pinnedAnnouncement = () => mockAnnouncements.find(a => a.pinned) || null;
+const pinnedEvent = () => mockEvents.find(e => e.pinned) || null;
+
+// The dashboard hero prefers an announcement, then a pinned event, and falls
+// back to the plain welcome hero when nothing is pinned.
+const pinForSummary = () => {
+  const announcement = pinnedAnnouncement();
+  if (announcement) {
+    return { type: "announcement", id: announcement.id, title: announcement.title, body: announcement.body, date: announcement.date, category: announcement.category };
+  }
+  const event = pinnedEvent();
+  if (event) {
+    return { type: "event", id: event.id, title: event.title, date: event.date, location: event.location };
+  }
+  return null;
 };
 
 // ─── Auth Routes ──────────────────────────────────────────────────────────────
@@ -69,8 +101,7 @@ app.post('/api/auth/login', (req, res) => {
     { expiresIn: '2h' }
   );
 
-  const { password: _, ...safeUser } = user;
-  res.json({ token, user: safeUser });
+  res.json({ token, user: safeUser(user) });
 });
 
 app.post('/api/auth/register-profile', (req, res) => {
@@ -90,21 +121,7 @@ app.post('/api/auth/register-profile', (req, res) => {
     isFirstTimeLogin: false
   };
 
-  const rosterIndex = mockRoster.findIndex(s => s.id === id);
-  if (rosterIndex !== -1) {
-    mockRoster[rosterIndex] = {
-      ...mockRoster[rosterIndex],
-      name: fullName,
-      picture: picture || mockRoster[rosterIndex].picture,
-      birthday,
-      course,
-      section,
-      gender
-    };
-  }
-
-  const { password: _, ...safeUser } = mockUsers[userIndex];
-  res.json({ user: safeUser });
+  res.json({ user: safeUser(mockUsers[userIndex]) });
 });
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
@@ -118,38 +135,45 @@ app.put('/api/users/profile', authenticate, (req, res) => {
   if (birthday) mockUsers[userIndex].birthday = birthday;
   if (gender) mockUsers[userIndex].gender = gender;
 
-  const rosterIndex = mockRoster.findIndex(s => s.id === req.user.id);
-  if (rosterIndex !== -1) {
-    mockRoster[rosterIndex] = { ...mockRoster[rosterIndex], name: mockUsers[userIndex].name, picture: mockUsers[userIndex].picture, birthday: mockUsers[userIndex].birthday, gender: mockUsers[userIndex].gender };
-  }
-
-  const { password: _, ...safeUser } = mockUsers[userIndex];
-  res.json({ user: safeUser });
+  res.json({ user: safeUser(mockUsers[userIndex]) });
 });
 
 // ─── Events ───────────────────────────────────────────────────────────────────
+// The public feed never shows drafts; admins read the full list from
+// /api/admin/events instead.
 app.get('/api/events', (req, res) => {
+  res.json(mockEvents.filter(e => e.status !== "draft"));
+});
+
+app.get('/api/admin/events', authenticate, requireRole('admin'), (req, res) => {
   res.json(mockEvents);
 });
 
+// Drafts are admin-only, so the public detail route treats them as missing.
 app.get('/api/events/:id', (req, res) => {
   const event = mockEvents.find(e => e.id === parseInt(req.params.id));
-  if (!event) return res.status(404).json({ message: "Event not found" });
+  if (!event || event.status === "draft") return res.status(404).json({ message: "Event not found" });
   res.json(event);
 });
 
 app.post('/api/events', authenticate, requireRole('admin'), (req, res) => {
-  const { title, date, description, location, type } = req.body;
+  const { title, date, description, location, type, status, pinned } = req.body;
   if (!title || !date) return res.status(400).json({ message: "Title and date are required." });
+  if (status && !STATUSES.includes(status)) {
+    return res.status(400).json({ message: "Status must be draft, published or cancelled." });
+  }
 
   const event = {
-    id: Math.max(0, ...mockEvents.map(e => e.id)) + 1,
+    id: nextId(mockEvents),
     title, date,
     description: description || "",
     location: location || "",
-    type: type || "event"
+    type: type || "event",
+    status: status || "published",
+    pinned: false
   };
   mockEvents.push(event);
+  if (pinned) pinExclusive(mockEvents, event.id);
   res.status(201).json({ event });
 });
 
@@ -157,15 +181,21 @@ app.put('/api/events/:id', authenticate, requireRole('admin'), (req, res) => {
   const index = mockEvents.findIndex(e => e.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ message: "Event not found" });
 
-  const { title, date, description, location, type } = req.body;
+  const { title, date, description, location, type, status, pinned } = req.body;
+  if (status && !STATUSES.includes(status)) {
+    return res.status(400).json({ message: "Status must be draft, published or cancelled." });
+  }
   mockEvents[index] = {
     ...mockEvents[index],
     ...(title && { title }),
     ...(date && { date }),
     ...(description !== undefined && { description }),
     ...(location !== undefined && { location }),
-    ...(type && { type })
+    ...(type && { type }),
+    ...(status && { status }),
+    ...(pinned !== undefined && { pinned: !!pinned })
   };
+  if (pinned) pinExclusive(mockEvents, mockEvents[index].id);
   res.json({ event: mockEvents[index] });
 });
 
@@ -175,6 +205,59 @@ app.delete('/api/events/:id', authenticate, requireRole('admin'), (req, res) => 
 
   const [removed] = mockEvents.splice(index, 1);
   res.json({ event: removed });
+});
+
+// ─── Announcements ────────────────────────────────────────────────────────────
+app.get('/api/announcements', (req, res) => {
+  const pinned = mockAnnouncements.filter(a => a.pinned);
+  const rest = mockAnnouncements.filter(a => !a.pinned);
+  res.json([...pinned, ...rest]);
+});
+
+app.get('/api/announcements/pinned', (req, res) => {
+  res.json(pinnedAnnouncement());
+});
+
+app.post('/api/announcements', authenticate, requireRole('admin'), (req, res) => {
+  const { title, body, category, pinned } = req.body;
+  if (!title || !body) return res.status(400).json({ message: "Title and body are required." });
+
+  const announcement = {
+    id: nextId(mockAnnouncements),
+    title,
+    body,
+    author: req.user.name,
+    date: new Date().toISOString().slice(0, 10),
+    category: category || "announcement",
+    pinned: false
+  };
+  mockAnnouncements.push(announcement);
+  if (pinned) pinExclusive(mockAnnouncements, announcement.id);
+  res.status(201).json({ announcement });
+});
+
+app.put('/api/announcements/:id', authenticate, requireRole('admin'), (req, res) => {
+  const index = mockAnnouncements.findIndex(a => a.id === parseInt(req.params.id));
+  if (index === -1) return res.status(404).json({ message: "Announcement not found" });
+
+  const { title, body, category, pinned } = req.body;
+  mockAnnouncements[index] = {
+    ...mockAnnouncements[index],
+    ...(title && { title }),
+    ...(body && { body }),
+    ...(category && { category }),
+    ...(pinned !== undefined && { pinned: !!pinned })
+  };
+  if (pinned) pinExclusive(mockAnnouncements, mockAnnouncements[index].id);
+  res.json({ announcement: mockAnnouncements[index] });
+});
+
+app.delete('/api/announcements/:id', authenticate, requireRole('admin'), (req, res) => {
+  const index = mockAnnouncements.findIndex(a => a.id === parseInt(req.params.id));
+  if (index === -1) return res.status(404).json({ message: "Announcement not found" });
+
+  const [removed] = mockAnnouncements.splice(index, 1);
+  res.json({ announcement: removed });
 });
 
 // ─── Faculty ──────────────────────────────────────────────────────────────────
@@ -187,7 +270,7 @@ app.post('/api/faculty', authenticate, requireRole('admin'), (req, res) => {
   if (!name) return res.status(400).json({ message: "Name is required." });
 
   const member = {
-    id: Math.max(0, ...mockFaculty.map(f => f.id)) + 1,
+    id: nextId(mockFaculty),
     name, position: position || "", department: department || "SCJE",
     specialization: specialization || "", email: email || ""
   };
@@ -219,20 +302,182 @@ app.delete('/api/faculty/:id', authenticate, requireRole('admin'), (req, res) =>
   res.json({ faculty: removed });
 });
 
-// ─── Student Roster (admin) ───────────────────────────────────────────────────
+// ─── Accounts (admin) ─────────────────────────────────────────────────────────
 app.get('/api/admin/users', authenticate, requireRole('admin'), (req, res) => {
-  res.json(mockRoster);
+  res.json(mockUsers.map(safeUser));
 });
 
 app.get('/api/admin/users/:id', authenticate, requireRole('admin'), (req, res) => {
-  const student = mockRoster.find(s => s.id === parseInt(req.params.id));
-  if (!student) return res.status(404).json({ message: "Student not found" });
+  const account = mockUsers.find(u => u.id === parseInt(req.params.id));
+  if (!account) return res.status(404).json({ message: "Account not found" });
 
   res.json({
-    student,
-    grades: mockGrades[student.id] || [],
-    schedule: mockSchedules[student.id] || []
+    student: safeUser(account),
+    grades: mockGrades[account.id] || [],
+    schedule: mockSchedules[account.id] || []
   });
+});
+
+app.post('/api/admin/users', authenticate, requireRole('admin'), (req, res) => {
+  const { name, email, password, role, department, course, section, year } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: "Name, email and password are required." });
+  }
+  if (!ROLES.includes(role)) {
+    return res.status(400).json({ message: "Role must be student, instructor or admin." });
+  }
+  if (mockUsers.some(u => u.email === email)) {
+    return res.status(409).json({ message: "That email is already registered." });
+  }
+
+  const account = {
+    id: nextId(mockUsers),
+    email,
+    password,
+    name,
+    department: department || "SCJE",
+    course: course || "",
+    section: section || "",
+    year: year || "",
+    role,
+    isFirstTimeLogin: false,
+    picture: "",
+    birthday: "",
+    gender: ""
+  };
+  mockUsers.push(account);
+  res.status(201).json({ user: safeUser(account) });
+});
+
+app.put('/api/admin/users/:id', authenticate, requireRole('admin'), (req, res) => {
+  const index = mockUsers.findIndex(u => u.id === parseInt(req.params.id));
+  if (index === -1) return res.status(404).json({ message: "Account not found" });
+
+  const { name, email, password, role, department, course, section, year } = req.body;
+  const account = mockUsers[index];
+
+  if (email && mockUsers.some(u => u.email === email && u.id !== account.id)) {
+    return res.status(409).json({ message: "That email is already registered." });
+  }
+  if (role && !ROLES.includes(role)) {
+    return res.status(400).json({ message: "Role must be student, instructor or admin." });
+  }
+  // Demoting the last administrator would strand the app with nobody able to
+  // reach the back office.
+  if (role && role !== account.role && account.role === "admin" && role !== "admin" && adminCount() <= 1) {
+    return res.status(409).json({ message: "The last administrator cannot be demoted." });
+  }
+
+  mockUsers[index] = {
+    ...account,
+    ...(name && { name }),
+    ...(email && { email }),
+    ...(password && { password }),
+    ...(role && { role }),
+    ...(department && { department }),
+    ...(course !== undefined && { course }),
+    ...(section !== undefined && { section }),
+    ...(year !== undefined && { year })
+  };
+  res.json({ user: safeUser(mockUsers[index]) });
+});
+
+app.delete('/api/admin/users/:id', authenticate, requireRole('admin'), (req, res) => {
+  const index = mockUsers.findIndex(u => u.id === parseInt(req.params.id));
+  if (index === -1) return res.status(404).json({ message: "Account not found" });
+
+  const [removed] = mockUsers.splice(index, 1);
+  if (removed.role === "admin" && adminCount() === 0) {
+    mockUsers.push(removed);
+    return res.status(409).json({ message: "The last administrator cannot be deleted." });
+  }
+
+  // Hard delete: the academic record goes with the account.
+  delete mockGrades[removed.id];
+  delete mockSchedules[removed.id];
+  res.json({ user: safeUser(removed) });
+});
+
+// ─── Grade rows (admin records grades) ────────────────────────────────────────
+const gradeRow = (row) => ({
+  code: row.code || "",
+  description: row.description || "",
+  units: Number(row.units) || 0,
+  midterm: Number(row.midterm) || 0,
+  finals: Number(row.finals) || 0,
+  grade: Number(row.grade) || 0
+});
+
+app.post('/api/admin/users/:id/grades', authenticate, requireRole('admin'), (req, res) => {
+  const account = mockUsers.find(u => u.id === parseInt(req.params.id));
+  if (!account) return res.status(404).json({ message: "Account not found" });
+  if (!req.body.code) return res.status(400).json({ message: "Course code is required." });
+
+  const rows = (mockGrades[account.id] = mockGrades[account.id] || []);
+  rows.push(gradeRow(req.body));
+  res.status(201).json({ grades: rows, gpa: gpaOf(rows) });
+});
+
+app.put('/api/admin/users/:id/grades/:rowIndex', authenticate, requireRole('admin'), (req, res) => {
+  const rows = mockGrades[parseInt(req.params.id)];
+  const index = parseInt(req.params.rowIndex);
+  if (!rows || !rows[index]) return res.status(404).json({ message: "Grade row not found" });
+  if (!req.body.code) return res.status(400).json({ message: "Course code is required." });
+
+  rows[index] = gradeRow(req.body);
+  res.json({ grades: rows, gpa: gpaOf(rows) });
+});
+
+app.delete('/api/admin/users/:id/grades/:rowIndex', authenticate, requireRole('admin'), (req, res) => {
+  const rows = mockGrades[parseInt(req.params.id)];
+  const index = parseInt(req.params.rowIndex);
+  if (!rows || !rows[index]) return res.status(404).json({ message: "Grade row not found" });
+
+  rows.splice(index, 1);
+  res.json({ grades: rows, gpa: gpaOf(rows) });
+});
+
+// ─── Schedule rows (admin manages schedules) ──────────────────────────────────
+const scheduleRow = (row) => ({
+  day: row.day || "",
+  time: row.time || "",
+  subject: row.subject || "",
+  room: row.room || "",
+  instructor: row.instructor || ""
+});
+
+app.post('/api/admin/users/:id/schedule', authenticate, requireRole('admin'), (req, res) => {
+  const account = mockUsers.find(u => u.id === parseInt(req.params.id));
+  if (!account) return res.status(404).json({ message: "Account not found" });
+  if (!req.body.subject || !req.body.day) {
+    return res.status(400).json({ message: "Day and subject are required." });
+  }
+
+  const rows = (mockSchedules[account.id] = mockSchedules[account.id] || []);
+  rows.push(scheduleRow(req.body));
+  res.status(201).json({ schedule: rows });
+});
+
+app.put('/api/admin/users/:id/schedule/:rowIndex', authenticate, requireRole('admin'), (req, res) => {
+  const rows = mockSchedules[parseInt(req.params.id)];
+  const index = parseInt(req.params.rowIndex);
+  if (!rows || !rows[index]) return res.status(404).json({ message: "Schedule row not found" });
+  if (!req.body.subject || !req.body.day) {
+    return res.status(400).json({ message: "Day and subject are required." });
+  }
+
+  rows[index] = scheduleRow(req.body);
+  res.json({ schedule: rows });
+});
+
+app.delete('/api/admin/users/:id/schedule/:rowIndex', authenticate, requireRole('admin'), (req, res) => {
+  const rows = mockSchedules[parseInt(req.params.id)];
+  const index = parseInt(req.params.rowIndex);
+  if (!rows || !rows[index]) return res.status(404).json({ message: "Schedule row not found" });
+
+  rows.splice(index, 1);
+  res.json({ schedule: rows });
 });
 
 // ─── Grades ───────────────────────────────────────────────────────────────────
@@ -241,9 +486,10 @@ app.get('/api/grades', authenticate, (req, res) => {
     return res.json({ scope: 'own', grades: mockGrades[req.user.id] || [] });
   }
 
+  const roster = getRoster();
   const students = req.user.role === 'admin'
-    ? mockRoster
-    : mockRoster.filter(s => s.department === req.user.department);
+    ? roster
+    : roster.filter(s => s.department === req.user.department);
 
   return res.json({
     scope: req.user.role === 'admin' ? 'all' : 'department',
@@ -253,6 +499,7 @@ app.get('/api/grades', authenticate, (req, res) => {
 
 // ─── Schedule ─────────────────────────────────────────────────────────────────
 app.get('/api/schedule', authenticate, (req, res) => {
+  const roster = getRoster();
   const asRows = (student) =>
     (mockSchedules[student.id] || []).map(row => ({
       ...row,
@@ -266,14 +513,14 @@ app.get('/api/schedule', authenticate, (req, res) => {
 
   if (req.user.role === 'instructor') {
     return res.json(
-      mockRoster
+      roster
         .filter(s => s.department === req.user.department)
         .flatMap(asRows)
         .filter(r => r.instructor === req.user.name)
     );
   }
 
-  return res.json(mockRoster.flatMap(asRows));
+  return res.json(roster.flatMap(asRows));
 });
 
 // ─── Notifications ────────────────────────────────────────────────────────────
@@ -284,10 +531,11 @@ app.get('/api/notifications', authenticate, (req, res) => {
 // ─── Dashboard Summary ────────────────────────────────────────────────────────
 app.get('/api/dashboard/summary', authenticate, (req, res) => {
   const unreadNotifications = mockNotifications.filter(n => !n.read).length;
-  const recentEvents = mockEvents.slice(0, 2);
+  const recentEvents = mockEvents.filter(e => e.status === "published").slice(0, 2);
+  const roster = getRoster();
 
   if (req.user.role === 'instructor') {
-    const classes = mockRoster
+    const classes = roster
       .filter(s => s.department === req.user.department)
       .flatMap(s => (mockSchedules[s.id] || []).map(r => ({ ...r, student: s.name, section: s.section })))
       .filter(r => r.instructor === req.user.name);
@@ -299,19 +547,21 @@ app.get('/api/dashboard/summary', authenticate, (req, res) => {
       studentsTaught: new Set(classes.map(c => c.student)).size,
       upcomingClasses: classes.slice(0, 4),
       unreadNotifications,
-      recentEvents
+      recentEvents,
+      pin: pinForSummary()
     });
   }
 
   if (req.user.role === 'admin') {
     return res.json({
       role: 'admin',
-      totalStudents: mockRoster.length,
+      totalStudents: roster.length,
       totalFaculty: mockFaculty.length,
       totalEvents: mockEvents.length,
       unreadNotifications,
       recentEvents,
-      faculty: mockFaculty.slice(0, 4)
+      faculty: mockFaculty.slice(0, 4),
+      pin: pinForSummary()
     });
   }
 
@@ -324,7 +574,8 @@ app.get('/api/dashboard/summary', authenticate, (req, res) => {
     gpa: gpaOf(grades),
     upcomingClasses: schedule.slice(0, 3),
     unreadNotifications,
-    recentEvents
+    recentEvents,
+    pin: pinForSummary()
   });
 });
 

@@ -61,6 +61,37 @@ const mockUsers = [
   }
 ];
 
+const generatedStudents = [
+  { id: 101, name: "Kevin Ramos", course: "BS Criminology", section: "2-B", year: "2", gender: "Male", birthday: "2003-04-11" },
+  { id: 102, name: "Angela Villanueva", course: "BS Information Systems", section: "4-A", year: "4", gender: "Female", birthday: "2001-09-02" },
+  { id: 103, name: "Jose Lim", course: "BS Criminology", section: "1-A", year: "1", gender: "Male", birthday: "2004-12-19" },
+  { id: 104, name: "Katrina Dela Peña", course: "BS Information Systems", section: "3-B", year: "3", gender: "Female", birthday: "2002-07-30" },
+  { id: 105, name: "Miguel Torres", course: "BS Criminology", section: "3-A", year: "3", gender: "Male", birthday: "2002-02-08" },
+  { id: 106, name: "Angelica Cruz", course: "BS Information Systems", section: "1-B", year: "1", gender: "Female", birthday: "2004-05-23" },
+  { id: 107, name: "Brian Hernandez", course: "BS Criminology", section: "2-A", year: "2", gender: "Male", birthday: "2003-11-05" },
+  { id: 108, name: "Patricia Mendoza", course: "BS Information Systems", section: "2-C", year: "2", gender: "Female", birthday: "2003-08-14" }
+];
+
+// Every rostered student is a real account, so the admin's Accounts page and
+// the login screen always talk about the same people.
+generatedStudents.forEach((s) => {
+  mockUsers.push({
+    id: s.id,
+    email: `${s.name.toLowerCase().replace(/[^a-z ]/g, "").replace(/ /g, ".")}@chcc.edu.ph`,
+    password: "password123",
+    name: s.name,
+    department: s.course.startsWith("BS Criminology") ? "SCJE" : "ISM",
+    course: s.course,
+    section: s.section,
+    year: s.year,
+    role: "student",
+    isFirstTimeLogin: false,
+    picture: "",
+    birthday: s.birthday,
+    gender: s.gender
+  });
+});
+
 const mockEvents = [
   {
     id: 1,
@@ -68,7 +99,9 @@ const mockEvents = [
     date: "2026-10-15",
     description: "Annual seminar featuring top law enforcement officers and forensic experts. All Criminology students are required to attend.",
     location: "Main Auditorium",
-    type: "seminar"
+    type: "seminar",
+    status: "published",
+    pinned: false
   },
   {
     id: 2,
@@ -76,7 +109,9 @@ const mockEvents = [
     date: "2026-11-01",
     description: "College-wide sports festival. Sign up with your section representative. Go SCJE!",
     location: "Gymnasium & Field",
-    type: "sports"
+    type: "sports",
+    status: "published",
+    pinned: true
   },
   {
     id: 3,
@@ -84,7 +119,9 @@ const mockEvents = [
     date: "2026-12-05",
     description: "Showcase of IT projects and coding competitions. Open to all departments.",
     location: "ISM Building",
-    type: "academic"
+    type: "academic",
+    status: "published",
+    pinned: false
   },
   {
     id: 4,
@@ -92,7 +129,29 @@ const mockEvents = [
     date: "2026-12-20",
     description: "Annual SCJE Christmas celebration. Bring your best Christmas spirit!",
     location: "Covered Court",
-    type: "social"
+    type: "social",
+    status: "published",
+    pinned: false
+  },
+  {
+    id: 5,
+    title: "Freshmen Orientation",
+    date: "2026-09-12",
+    description: "Welcome program for first-year students. Campus tour, department briefings and ice breakers.",
+    location: "Covered Court",
+    type: "academic",
+    status: "published",
+    pinned: false
+  },
+  {
+    id: 6,
+    title: "Faculty Retreat",
+    date: "2026-10-30",
+    description: "Planning retreat for faculty members. Classes on this day are cancelled.",
+    location: "Tagaytay Lodge",
+    type: "event",
+    status: "draft",
+    pinned: false
   }
 ];
 
@@ -102,6 +161,45 @@ const mockFaculty = [
   { id: 3, name: "Prof. Mark Santos", position: "Instructor", department: "SCJE", specialization: "Forensic Science", email: "msantos@chcc.edu.ph" },
   { id: 4, name: "Prof. Ana Cruz", position: "Instructor", department: "ISM", specialization: "Database Systems", email: "acruz@chcc.edu.ph" },
   { id: 5, name: "Mr. John Smith", position: "IT Coordinator", department: "ISM", specialization: "Network Admin", email: "jsmith@chcc.edu.ph" }
+];
+
+const mockAnnouncements = [
+  {
+    id: 1,
+    title: "Midterm Exams Start October 5",
+    body: "Midterm examinations run from October 5 to 10. Check your timetable and bring your school ID. Reviewers are posted on the department bulletin board.",
+    author: "Admin",
+    date: "2026-09-26",
+    category: "academic",
+    pinned: true
+  },
+  {
+    id: 2,
+    title: "Enlistment for Next Semester",
+    body: "Enlistment opens on October 20. Settle any outstanding balance first, then enlist with your section adviser.",
+    author: "Admin",
+    date: "2026-09-22",
+    category: "reminder",
+    pinned: false
+  },
+  {
+    id: 3,
+    title: "Intramurals Sign-up Now Open",
+    body: "Registration for the Intramurals closes on October 25. See your section representative to join a team.",
+    author: "Admin",
+    date: "2026-09-18",
+    category: "event",
+    pinned: false
+  },
+  {
+    id: 4,
+    title: "Library Extended Hours",
+    body: "The library stays open until 8PM on weekdays for the rest of the semester.",
+    author: "Admin",
+    date: "2026-09-15",
+    category: "reminder",
+    pinned: false
+  }
 ];
 
 const mockGrades = {
@@ -174,17 +272,6 @@ const mockNotifications = [
   { id: 3, title: "New Lab Equipment", message: "Forensics lab has been updated with new equipment.", date: "2026-09-20", read: true }
 ];
 
-const generatedStudents = [
-  { id: 101, name: "Kevin Ramos", course: "BS Criminology", section: "2-B", year: "2", gender: "Male", birthday: "2003-04-11" },
-  { id: 102, name: "Angela Villanueva", course: "BS Information Systems", section: "4-A", year: "4", gender: "Female", birthday: "2001-09-02" },
-  { id: 103, name: "Jose Lim", course: "BS Criminology", section: "1-A", year: "1", gender: "Male", birthday: "2004-12-19" },
-  { id: 104, name: "Katrina Dela Peña", course: "BS Information Systems", section: "3-B", year: "3", gender: "Female", birthday: "2002-07-30" },
-  { id: 105, name: "Miguel Torres", course: "BS Criminology", section: "3-A", year: "3", gender: "Male", birthday: "2002-02-08" },
-  { id: 106, name: "Angelica Cruz", course: "BS Information Systems", section: "1-B", year: "1", gender: "Female", birthday: "2004-05-23" },
-  { id: 107, name: "Brian Hernandez", course: "BS Criminology", section: "2-A", year: "2", gender: "Male", birthday: "2003-11-05" },
-  { id: 108, name: "Patricia Mendoza", course: "BS Information Systems", section: "2-C", year: "2", gender: "Female", birthday: "2003-08-14" }
-];
-
 const toStudent = (u) => ({
   id: u.id,
   name: u.name,
@@ -199,24 +286,17 @@ const toStudent = (u) => ({
   picture: u.picture || ""
 });
 
-const mockRoster = [
-  ...mockUsers.filter((u) => u.role === "student").map(toStudent),
-  ...generatedStudents.map((s) => ({
-    ...toStudent({
-      ...s,
-      email: `${s.name.toLowerCase().replace(/[^a-z ]/g, "").replace(/ /g, ".")}@chcc.edu.ph`,
-      department: s.course.startsWith("BS Criminology") ? "SCJE" : "ISM",
-      picture: ""
-    })
-  }))
-];
+// The roster is a view over the account list, so creating, editing or deleting
+// an account keeps the roster in step automatically.
+const getRoster = () => mockUsers.filter((u) => u.role === "student").map(toStudent);
 
 module.exports = {
   mockUsers,
   mockEvents,
   mockFaculty,
+  mockAnnouncements,
   mockGrades,
   mockSchedules,
   mockNotifications,
-  mockRoster
+  getRoster
 };

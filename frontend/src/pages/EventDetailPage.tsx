@@ -10,6 +10,8 @@ interface EventDetail {
   description: string;
   location: string;
   type: string;
+  status: string;
+  pinned: boolean;
 }
 
 export default function EventDetailPage() {
@@ -44,14 +46,31 @@ export default function EventDetailPage() {
           </button>
 
           <div className="card" style={{ padding: "32px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", gap: "12px", flexWrap: "wrap" }}>
               <h1 style={{ color: "var(--text)", fontSize: "1.5rem", margin: 0, flex: 1 }}>{event.title}</h1>
-              <span style={{
-                backgroundColor: typeColors[event.type] || "var(--brand)",
-                color: "white", padding: "4px 16px", borderRadius: "99px",
-                fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", flexShrink: 0
-              }}>
-                {event.type}
+              <span style={{ display: "flex", gap: "8px", flexShrink: 0, flexWrap: "wrap" }}>
+                {event.pinned && (
+                  <span style={{ backgroundColor: "var(--gold)", color: "var(--on-gold)", padding: "4px 14px", borderRadius: "99px", fontSize: "0.8rem", fontWeight: 700 }}>
+                    📌 PINNED
+                  </span>
+                )}
+                {event.status === "cancelled" && (
+                  <span style={{ backgroundColor: "var(--danger)", color: "white", padding: "4px 14px", borderRadius: "99px", fontSize: "0.8rem", fontWeight: 700 }}>
+                    CANCELLED
+                  </span>
+                )}
+                {event.date < new Date().toISOString().slice(0, 10) && (
+                  <span style={{ backgroundColor: "var(--surface-2)", color: "var(--text-muted)", padding: "4px 14px", borderRadius: "99px", fontSize: "0.8rem", fontWeight: 700 }}>
+                    FINISHED
+                  </span>
+                )}
+                <span style={{
+                  backgroundColor: typeColors[event.type] || "var(--brand)",
+                  color: "white", padding: "4px 16px", borderRadius: "99px",
+                  fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase"
+                }}>
+                  {event.type}
+                </span>
               </span>
             </div>
 

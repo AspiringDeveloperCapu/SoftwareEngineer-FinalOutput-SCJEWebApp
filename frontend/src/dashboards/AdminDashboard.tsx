@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
+import PinnedHero, { PinSummary } from "../components/PinnedHero";
 import { getSession, Session } from "../access";
 
 interface FacultyItem {
@@ -25,6 +26,7 @@ interface AdminSummary {
   unreadNotifications: number;
   recentEvents: EventItem[];
   faculty: FacultyItem[];
+  pin?: PinSummary | null;
 }
 
 export default function AdminDashboard() {
@@ -53,8 +55,9 @@ export default function AdminDashboard() {
   if (!user) return null;
 
   const actions = [
-    { to: "/students", icon: "🧑‍🎓", label: "Student Roster", note: "Look up any student" },
-    { to: "/manage-events", icon: "🗓️", label: "Manage Events", note: "Create, edit, delete" },
+    { to: "/students", icon: "🧑‍🎓", label: "Accounts", note: "Create, edit, assign roles" },
+    { to: "/manage-announcements", icon: "📣", label: "Announcements", note: "Publish and pin" },
+    { to: "/manage-events", icon: "🗓️", label: "Manage Events", note: "Drafts, status, pinning" },
     { to: "/manage-faculty", icon: "🗂️", label: "Manage Faculty", note: "Instructors and staff" }
   ];
 
@@ -65,15 +68,12 @@ export default function AdminDashboard() {
         <Navbar />
 
         <div className="dashboard-body">
-          <section className="hero" style={{ position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: "16px", right: "16px", backgroundColor: "var(--gold)", color: "var(--on-gold)", padding: "4px 12px", borderRadius: "99px", fontSize: "0.8rem", fontWeight: "bold" }}>
-              ⚙️ Administrator
-            </div>
-            <h1 style={{ fontSize: "1.5rem" }}>Welcome, {user.name}!</h1>
-            <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: "8px" }}>
-              {user.department} — MIS Office · Full access to the back office
-            </p>
-          </section>
+          <PinnedHero
+            user={user}
+            subtitle={`${user.department} — MIS Office · Full access to the back office`}
+            pin={summary?.pin}
+            fallbackBadge={{ text: "⚙️ Administrator", background: "var(--gold)", color: "var(--on-gold)" }}
+          />
 
           {summary && (
             <div className="content-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr", marginBottom: "24px" }}>
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
           )}
 
           {/* Back office shortcuts - only the admin tier has these */}
-          <div className="content-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr", marginBottom: "24px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px", marginBottom: "24px" }}>
             {actions.map(action => (
               <Link key={action.to} to={action.to} style={{ textDecoration: "none" }}>
                 <div className="card" style={{ display: "flex", alignItems: "center", gap: "12px", transition: "transform 0.15s" }}>

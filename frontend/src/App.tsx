@@ -10,6 +10,7 @@ import GradesPage from "./pages/GradesPage";
 import ProfilePage from "./pages/ProfilePage";
 import RegisterProfile from "./pages/RegisterProfile";
 import StudentsPage from "./pages/StudentsPage";
+import ManageAnnouncementsPage from "./pages/ManageAnnouncementsPage";
 import ManageEventsPage from "./pages/ManageEventsPage";
 import ManageFacultyPage from "./pages/ManageFacultyPage";
 import ViewOnlyDashboard from "./dashboards/ViewOnlyDashboard";
@@ -37,6 +38,7 @@ function App() {
 
         {/* The back office: admin tier only */}
         <Route path="/students" element={<Protected roles={["admin"]}><StudentsPage /></Protected>} />
+        <Route path="/manage-announcements" element={<Protected roles={["admin"]}><ManageAnnouncementsPage /></Protected>} />
         <Route path="/manage-events" element={<Protected roles={["admin"]}><ManageEventsPage /></Protected>} />
         <Route path="/manage-faculty" element={<Protected roles={["admin"]}><ManageFacultyPage /></Protected>} />
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
+import PinnedHero, { PinSummary } from "../components/PinnedHero";
 import { getSession, Session } from "../access";
 
 interface ClassItem {
@@ -27,6 +28,7 @@ interface InstructorSummary {
   upcomingClasses: ClassItem[];
   unreadNotifications: number;
   recentEvents: EventItem[];
+  pin?: PinSummary | null;
 }
 
 export default function InstructorDashboard() {
@@ -61,15 +63,12 @@ export default function InstructorDashboard() {
         <Navbar />
 
         <div className="dashboard-body">
-          <section className="hero" style={{ position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: "16px", right: "16px", backgroundColor: "var(--accent-solid)", color: "var(--on-brand)", padding: "4px 12px", borderRadius: "99px", fontSize: "0.8rem", fontWeight: "bold" }}>
-              👨‍🏫 Instructor
-            </div>
-            <h1 style={{ fontSize: "1.5rem" }}>Welcome, {user.name}!</h1>
-            <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: "8px" }}>
-              {user.department} Department — Teaching load and events
-            </p>
-          </section>
+          <PinnedHero
+            user={user}
+            subtitle={`${user.department} Department — Teaching load and events`}
+            pin={summary?.pin}
+            fallbackBadge={{ text: "👨‍🏫 Instructor", background: "var(--accent-solid)", color: "var(--on-brand)" }}
+          />
 
           {summary && (
             <div className="content-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr", marginBottom: "24px" }}>

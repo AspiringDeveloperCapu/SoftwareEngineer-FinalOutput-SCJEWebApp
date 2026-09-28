@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { getSession, linksFor, NavItem, Session, VIEW_ONLY_LINKS } from "../access";
 
-const ROLE_STYLE: Record<string, { background: string; color: string }> = {
+export const ROLE_STYLE: Record<string, { background: string; color: string }> = {
   admin: { background: "var(--gold)", color: "var(--on-gold)" },
   instructor: { background: "var(--accent-solid)", color: "var(--on-brand)" },
   student: { background: "var(--on-brand)", color: "var(--brand-strong)" }

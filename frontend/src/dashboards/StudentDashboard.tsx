@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
+import PinnedHero, { PinSummary } from "../components/PinnedHero";
 import { getSession, Session } from "../access";
 
 interface ScheduleItem {
@@ -24,6 +25,7 @@ export interface StudentSummary {
   upcomingClasses: ScheduleItem[];
   unreadNotifications: number;
   recentEvents: EventItem[];
+  pin?: PinSummary | null;
 }
 
 export default function StudentDashboard() {
@@ -58,16 +60,13 @@ export default function StudentDashboard() {
         <Navbar />
 
         <div className="dashboard-body">
-          {/* Pinned Hero */}
-          <section className="hero" style={{ position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: "16px", right: "16px", backgroundColor: "var(--accent-solid)", color: "var(--on-brand)", padding: "4px 12px", borderRadius: "99px", fontSize: "0.8rem", fontWeight: "bold" }}>
-              📌 Pinned
-            </div>
-            <h1 style={{ fontSize: "1.5rem" }}>Welcome, {user.name}!</h1>
-            <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: "8px" }}>
-              {user.department} — {user.course} {user.section ? `/ ${user.section}` : ""}
-            </p>
-          </section>
+          {/* Hero: shows the admin's pinned announcement/event when there is one */}
+          <PinnedHero
+            user={user}
+            subtitle={`${user.department} — ${user.course}${user.section ? ` / ${user.section}` : ""}`}
+            pin={summary?.pin}
+            fallbackBadge={{ text: "🎓 Student", background: "var(--accent-solid)", color: "var(--on-brand)" }}
+          />
 
           {/* Stats Cards */}
           {summary && (
