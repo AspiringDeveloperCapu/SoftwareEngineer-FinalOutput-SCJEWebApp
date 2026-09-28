@@ -14,6 +14,8 @@ Based on the original system requirements, this web app implements:
     *   **Drawer**: Displays exact user info (Picture, Name, Birthday).
     *   **Body**: Features a pinned Hero section, News/Announcements, and shortcuts.
 *   **Administration Navbar**: A dedicated Navigation Bar menu that displays Faculty Members and Officers when clicked.
+*   **Installable PWA**: A web app manifest (same name, icon and `#0B3D63` theme as the Flutter app) lets Chrome/Edge install it to the taskbar or home screen.
+*   **Offline support**: The service worker precaches the app shell and stores the last successful response of every `GET /api/…`, so deep links and content still load with no connection. A gold strip at the bottom says so, so saved data is never mistaken for fresh data.
 *   **Flutter-Inspired Theme**: Matches the original `scje_system` mobile app styling (Navy, Crimson, Gold, Material 3 borders).
 
 ## Project Structure
@@ -21,9 +23,13 @@ Based on the original system requirements, this web app implements:
 scje-web-app/
 ├─ architecture.md          # Detailed system architecture and logic rules
 ├─ frontend/                # React SPA (Vite + TypeScript)
+│   ├─ vite.config.ts       # PWA: manifest, precache, offline API cache
+│   ├─ public/icons/        # PWA icons (shared with the Flutter build)
 │   └─ src/
-│       ├─ components/      # Drawer.tsx, Navbar.tsx
-│       └─ pages/           # Login.tsx, Dashboard.tsx, RegisterProfile.tsx, Events.tsx
+│       ├─ components/      # Drawer.tsx, Navbar.tsx, OfflineBanner.tsx
+│       ├─ pages/           # Login, Dashboard, RegisterProfile, Events, EventDetail,
+│       │                    # Faculty, Schedule, Grades, Profile
+│       └─ main.tsx         # reloads once when the worker first claims the page
 ├─ backend/                 # Express API
 │   └─ src/
 │       ├─ index.js         # API Routes (Auth, Events, Faculty)
@@ -50,6 +56,26 @@ npm install
 npm run dev
 ```
 *Runs on `http://localhost:5173`*
+
+### 3. Demo the PWA / offline mode
+
+`npm run dev` already registers the service worker and serves the manifest, so the
+app is installable from the dev server too (address-bar install icon, or
+*Install app* in the Chrome menu). Offline rendering needs the built bundle,
+because that is what gets precached:
+
+```bash
+cd frontend
+npm run build
+npm run preview
+```
+*Runs on `http://localhost:4173`*
+
+To show offline use: open `http://localhost:4173` and let it load once so the
+cache fills, then DevTools → Network → **Offline** → reload. The shell renders
+from the precache, the last events/grades are still on screen, and a gold strip
+appears at the bottom saying you are offline. Deep links (`/events/5`) resolve
+the same way instead of showing a browser error.
 
 ---
 
