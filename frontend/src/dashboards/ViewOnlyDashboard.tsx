@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
+import { getSession } from "../access";
 
 interface EventItem {
   id: number;
@@ -12,19 +14,25 @@ interface EventItem {
 }
 
 /**
- * The bottom of the hierarchy: events and announcements only, no statistics and
- * no academic pages in the drawer. No demo account signs in as view-only today -
- * the route exists so a restricted session always has somewhere honest to land.
+ * The landing page: the bottom of the hierarchy - events only, no statistics
+ * and no academic pages in the drawer - shown before anyone signs in, so the
+ * app has content on first load. A signed-in account never sees it; it is
+ * bounced to its own dashboard instead.
  */
 export default function ViewOnlyDashboard() {
   const [events, setEvents] = useState<EventItem[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (getSession()) {
+      navigate("/dashboard", { replace: true });
+      return;
+    }
     fetch("http://localhost:4000/api/events")
       .then(res => res.json())
       .then(data => setEvents(data))
       .catch(err => console.error(err));
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="app-container">
@@ -41,6 +49,17 @@ export default function ViewOnlyDashboard() {
             <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: "8px" }}>
               Announcements and upcoming events — everything else requires an account.
             </p>
+            <div style={{ display: "flex", gap: "12px", marginTop: "16px", flexWrap: "wrap" }}>
+              <button className="login-btn" onClick={() => navigate("/login")} style={{ padding: "10px 20px" }}>
+                Sign in →
+              </button>
+              <button
+                onClick={() => navigate("/events")}
+                style={{ padding: "10px 20px", borderRadius: "12px", border: "1px solid var(--border-strong)", backgroundColor: "var(--surface)", color: "var(--text)", cursor: "pointer", fontWeight: 700 }}
+              >
+                Browse all events
+              </button>
+            </div>
           </section>
 
           <section className="card">

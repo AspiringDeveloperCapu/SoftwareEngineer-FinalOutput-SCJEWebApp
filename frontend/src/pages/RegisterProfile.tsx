@@ -20,7 +20,7 @@ export default function RegisterProfile() {
       setFullName(u.name || "");
       setCourse(u.course || "");
     } else {
-      navigate("/");
+      navigate("/login");
     }
   }, [navigate]);
 

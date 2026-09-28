@@ -55,6 +55,12 @@ export default function Login() {
       <div style={{ position: "absolute", top: "16px", right: "16px" }}>
         <ThemeToggle />
       </div>
+      <button
+        onClick={() => navigate("/")}
+        style={{ position: "absolute", top: "16px", left: "16px", background: "none", border: "none", color: "var(--heading)", cursor: "pointer", fontWeight: 700, fontSize: "0.9rem" }}
+      >
+        ← Back to dashboard
+      </button>
       <div style={{ width: "100%", maxWidth: "440px", display: "flex", flexDirection: "column" }}>
         
         {/* Brand Section */}

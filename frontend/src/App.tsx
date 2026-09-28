@@ -22,8 +22,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public: the login screen, the events feed and the view-only dashboard */}
-        <Route path="/" element={<Login />} />
+        {/* Public: the view-only dashboard is the landing page, so a visitor
+            sees content before signing in. Sign-in lives at /login. */}
+        <Route path="/" element={<ViewOnlyDashboard />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetailPage />} />
         <Route path="/view-only" element={<ViewOnlyDashboard />} />

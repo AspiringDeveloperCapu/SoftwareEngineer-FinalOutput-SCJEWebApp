@@ -107,10 +107,16 @@ export default function Navbar() {
           </button>
         )}
 
-        {/* Logout */}
-        <button className="login-btn" onClick={handleLogout} style={{ padding: "8px 16px" }}>
-          Logout
-        </button>
+        {/* Session-less visitors get a way in; a signed-in account logs out */}
+        {user ? (
+          <button className="login-btn" onClick={handleLogout} style={{ padding: "8px 16px" }}>
+            Logout
+          </button>
+        ) : (
+          <button className="login-btn" onClick={() => navigate("/login")} style={{ padding: "8px 16px" }}>
+            Sign In
+          </button>
+        )}
       </div>
 
       {/* Administration Dropdown */}

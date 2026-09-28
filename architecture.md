@@ -60,13 +60,19 @@ they see are matched by name against the timetable.
 `401 { "message": "Account not recognized." }` — the same wording for both, so
 the API doesn't reveal which addresses exist — and nothing is written to
 `localStorage`. A session whose role the table doesn't recognise is discarded on
-read (`getSession()` returns `null`), which lands the user back on the login
-screen rather than on a dashboard.
+read (`getSession()` returns `null`), which lands the user on the public
+view-only landing rather than on a full dashboard.
 
 ## 4. System Workflows
 
+### Landing & Sign-In
+The root route (`/`) is the **view-only dashboard** — the bottom of the
+hierarchy, so a visitor sees real content (event feed, Sign in button) with no
+account. The login form lives at `/login`; a signed-in session that opens `/`
+or `/view-only` is bounced to `/dashboard` (its own dashboard).
+
 ### Authentication & First-Time Registration Flow
-1. User enters Email and Password.
+1. User opens `/login` and enters Email and Password.
 2. The system checks the database (MIS data).
 3. **First-Time Login**: If the user is logging in for the first time, they are intercepted and forced to register their profile. The required fields are:
    - Picture
@@ -99,8 +105,10 @@ greets the user and, when the admin has pinned something, shows that pin
 - **Admin** (`AdminDashboard.tsx`): students / faculty / events counts, four
   back-office shortcuts (Accounts, Announcements, Manage Events, Manage
   Faculty), a faculty snapshot and recent events.
-- **View-only** (`ViewOnlyDashboard.tsx`, `/view-only`): hero plus the full event
-  list — no statistics, no academic pages.
+- **View-only** (`ViewOnlyDashboard.tsx`, `/` — also aliased at `/view-only`):
+  hero plus the full event list and Sign in / Browse all events buttons — no
+  statistics, no academic pages. It is the landing page, so it never asks for a
+  session; a signed-in visitor opening it is sent to `/dashboard`.
 
 ### Back office screens
 - **Accounts** (`/students`, `StudentsPage.tsx`): every account with a role badge
