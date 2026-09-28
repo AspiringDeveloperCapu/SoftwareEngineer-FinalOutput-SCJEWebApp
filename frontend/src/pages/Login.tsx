@@ -35,8 +35,6 @@ export default function Login() {
 
       if (data.user.isFirstTimeLogin) {
         navigate("/register-profile");
-      } else if (data.user.viewOnly) {
-        navigate("/events");
       } else {
         navigate("/dashboard");
       }
@@ -157,9 +155,9 @@ export default function Login() {
               <strong style={{ color: "var(--heading)" }}>First-Time Student</strong><br/>
               crim@chcc.edu.ph
             </li>
-            <li onClick={() => fillDemoAccount("guest@chcc.edu.ph")} style={{ padding: "8px", borderRadius: "8px", cursor: "pointer", border: "1px solid var(--border)", fontSize: "0.85rem" }}>
-              <strong style={{ color: "var(--heading)" }}>View Only Guest</strong><br/>
-              guest@chcc.edu.ph
+            <li onClick={() => fillDemoAccount("instructor@chcc.edu.ph")} style={{ padding: "8px", borderRadius: "8px", cursor: "pointer", border: "1px solid var(--border)", fontSize: "0.85rem" }}>
+              <strong style={{ color: "var(--heading)" }}>Instructor</strong><br/>
+              instructor@chcc.edu.ph
             </li>
             <li onClick={() => fillDemoAccount("admin@chcc.edu.ph")} style={{ padding: "8px", borderRadius: "8px", cursor: "pointer", border: "1px solid var(--border)", fontSize: "0.85rem" }}>
               <strong style={{ color: "var(--heading)" }}>Administrator</strong><br/>

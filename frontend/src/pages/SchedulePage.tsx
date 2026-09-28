@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
+import { getSession } from "../access";
 
 interface ScheduleItem {
   day: string;
@@ -8,12 +9,15 @@ interface ScheduleItem {
   subject: string;
   room: string;
   instructor: string;
+  student?: string;
+  section?: string;
 }
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
 export default function SchedulePage() {
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
+  const role = getSession()?.role || "student";
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -35,13 +39,24 @@ export default function SchedulePage() {
     Friday: "var(--accent)"
   };
 
+  const title = role === "admin"
+    ? "School Schedule"
+    : role === "instructor"
+      ? "My Teaching Schedule"
+      : "Class Schedule";
+
+  const showStudent = role !== "student";
+
   return (
     <div className="app-container">
       <Drawer />
       <main className="main-content">
         <Navbar />
         <div className="dashboard-body">
-          <h2 style={{ color: "var(--heading)", marginBottom: "24px" }}>Class Schedule</h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "24px" }}>
+            <h2 style={{ color: "var(--heading)", margin: 0 }}>{title}</h2>
+            <span style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>{schedule.length} classes</span>
+          </div>
 
           {DAYS.map(day => {
             const classes = schedule.filter(s => s.day === day);
@@ -57,6 +72,11 @@ export default function SchedulePage() {
                     <div key={i} className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px" }}>
                       <div>
                         <strong style={{ color: "var(--heading)", fontSize: "1rem" }}>{cls.subject}</strong>
+                        {showStudent && cls.student && (
+                          <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--accent)", marginLeft: "8px" }}>
+                            {cls.student} {cls.section ? `· ${cls.section}` : ""}
+                          </span>
+                        )}
                         <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "4px 0 0 0" }}>{cls.instructor}</p>
                       </div>
                       <div style={{ textAlign: "right" }}>

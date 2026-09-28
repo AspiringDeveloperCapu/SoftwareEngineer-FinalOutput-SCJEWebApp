@@ -77,7 +77,7 @@ export default function Navbar() {
         <ThemeToggle />
 
         {/* Notifications Bell */}
-        {user && !user.viewOnly && (
+        {user && (
           <button
             onClick={handleNotifClick}
             style={{ background: "none", border: "none", cursor: "pointer", fontSize: "1.2rem", position: "relative", padding: "4px 8px" }}
@@ -98,12 +98,14 @@ export default function Navbar() {
         )}
 
         {/* Administration */}
-        <button
-          onClick={handleAdminClick}
-          style={{ background: "none", border: "none", color: "var(--heading)", fontWeight: 600, cursor: "pointer", fontSize: "0.95rem" }}
-        >
-          Administration ▾
-        </button>
+        {user && (
+          <button
+            onClick={handleAdminClick}
+            style={{ background: "none", border: "none", color: "var(--heading)", fontWeight: 600, cursor: "pointer", fontSize: "0.95rem" }}
+          >
+            Administration ▾
+          </button>
+        )}
 
         {/* Logout */}
         <button className="login-btn" onClick={handleLogout} style={{ padding: "8px 16px" }}>

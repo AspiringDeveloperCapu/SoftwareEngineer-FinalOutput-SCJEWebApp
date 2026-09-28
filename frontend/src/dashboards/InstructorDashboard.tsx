@@ -1,0 +1,133 @@
+import React, { useEffect, useState } from "react";
+import Drawer from "../components/Drawer";
+import Navbar from "../components/Navbar";
+import { getSession, Session } from "../access";
+
+interface ClassItem {
+  day: string;
+  time: string;
+  subject: string;
+  room: string;
+  instructor: string;
+  student: string;
+  section: string;
+}
+
+interface EventItem {
+  id: number;
+  title: string;
+  date: string;
+}
+
+interface InstructorSummary {
+  role: "instructor";
+  classesHandled: number;
+  subjects: number;
+  studentsTaught: number;
+  upcomingClasses: ClassItem[];
+  unreadNotifications: number;
+  recentEvents: EventItem[];
+}
+
+export default function InstructorDashboard() {
+  const [user, setUser] = useState<Session | null>(null);
+  const [summary, setSummary] = useState<InstructorSummary | null>(null);
+
+  useEffect(() => {
+    const session = getSession();
+    if (!session) {
+      window.location.href = "/";
+      return;
+    }
+    setUser(session);
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("http://localhost:4000/api/dashboard/summary", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => setSummary(data))
+        .catch(err => console.error(err));
+    }
+  }, []);
+
+  if (!user) return null;
+
+  return (
+    <div className="app-container">
+      <Drawer />
+      <main className="main-content">
+        <Navbar />
+
+        <div className="dashboard-body">
+          <section className="hero" style={{ position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: "16px", right: "16px", backgroundColor: "var(--accent-solid)", color: "var(--on-brand)", padding: "4px 12px", borderRadius: "99px", fontSize: "0.8rem", fontWeight: "bold" }}>
+              👨‍🏫 Instructor
+            </div>
+            <h1 style={{ fontSize: "1.5rem" }}>Welcome, {user.name}!</h1>
+            <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: "8px" }}>
+              {user.department} Department — Teaching load and events
+            </p>
+          </section>
+
+          {summary && (
+            <div className="content-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr", marginBottom: "24px" }}>
+              <div className="card" style={{ textAlign: "center" }}>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: "4px" }}>Classes Handled</p>
+                <h2 style={{ color: "var(--heading)", fontSize: "2rem", margin: 0 }}>{summary.classesHandled}</h2>
+              </div>
+              <div className="card" style={{ textAlign: "center" }}>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: "4px" }}>Subjects</p>
+                <h2 style={{ color: "var(--gold)", fontSize: "2rem", margin: 0 }}>{summary.subjects}</h2>
+              </div>
+              <div className="card" style={{ textAlign: "center" }}>
+                <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: "4px" }}>Students Taught</p>
+                <h2 style={{ color: "var(--accent)", fontSize: "2rem", margin: 0 }}>{summary.studentsTaught}</h2>
+              </div>
+            </div>
+          )}
+
+          <div className="content-grid">
+            <section className="card">
+              <h3>My Classes</h3>
+              {summary && summary.upcomingClasses.length > 0 ? (
+                <ul style={{ listStyle: "none", padding: 0, marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {summary.upcomingClasses.map((cls, i) => (
+                    <li key={i} style={{ padding: "12px", backgroundColor: "var(--surface-alt)", borderRadius: "8px" }}>
+                      <strong style={{ color: "var(--heading)" }}>{cls.subject}</strong>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--accent)", marginLeft: "8px" }}>
+                        {cls.section}
+                      </span>
+                      <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: "4px 0 0 0" }}>
+                        {cls.day} · {cls.time} · {cls.room}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p style={{ color: "var(--text-muted)", marginTop: "12px" }}>No classes assigned yet.</p>
+              )}
+            </section>
+
+            <section className="card">
+              <h3>Recent Events</h3>
+              {summary && summary.recentEvents.length > 0 ? (
+                <ul style={{ listStyle: "none", padding: 0, marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {summary.recentEvents.map(evt => (
+                    <li key={evt.id} style={{ padding: "12px", backgroundColor: "var(--surface-alt)", borderRadius: "8px" }}>
+                      <strong style={{ color: "var(--accent)" }}>{evt.title}</strong>
+                      <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: "4px 0 0 0" }}>{evt.date}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p style={{ color: "var(--text-muted)", marginTop: "12px" }}>No recent events.</p>
+              )}
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

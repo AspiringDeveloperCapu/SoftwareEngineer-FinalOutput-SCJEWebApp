@@ -7,9 +7,12 @@ This repository contains the web-based version of the SCJE/BSISM Student System,
 Based on the original system requirements, this web app implements:
 
 *   **First-Time Login Registration**: Intercepts new users and securely collects their Picture, Full Name, Birthday, Course/Section, and Gender before allowing access.
-*   **Role-Based Access Control**:
-    *   **SCJE / ISM Students (Crim)**: Full access to the Main Dashboard, Schedules, Grades, and Instructors.
-    *   **Non-Department Students**: Restricted to a "View-Only" mode where they can only see Upcoming/Recent Events.
+*   **Role-Based Access Control**: a strict hierarchy — **admin > instructor > student > view-only** — read from one table in `frontend/src/access.ts` that decides each role's dashboard, sidebar links and which routes it may open.
+    *   **Students**: their own dashboard (enrolled subjects, GPA, upcoming classes), personal grades and schedule.
+    *   **Instructors**: a teaching dashboard (classes handled, subjects, students taught), the classes they teach in the schedule, and grades for their department.
+    *   **Admins**: the full back office — a 10-student roster with per-student grades and timetable, plus create/edit/delete for events and faculty. Their dashboard opens on roster/faculty/event counts and shortcuts.
+    *   **View-only**: a dedicated `/view-only` dashboard that lists events only (no demo account signs in as view-only).
+*   **Route guards**: pages check the session before rendering — a student who types `/students` is bounced back to their own dashboard, and a session with an unrecognized role never renders a dashboard.
 *   **Dynamic Dashboard**:
     *   **Drawer**: Displays exact user info (Picture, Name, Birthday).
     *   **Body**: Features a pinned Hero section, News/Announcements, and shortcuts.
@@ -94,10 +97,10 @@ Use the following credentials in the login screen (password for all is `password
    - **Email:** `ism@chcc.edu.ph`
    - *Behavior:* Bypasses registration and goes straight to the full dashboard, with a completed profile (picture, birthday, gender) already on file.
 
-3. **Guest / Other Department (View-Only Test)**
-   - **Email:** `guest@chcc.edu.ph`
-   - *Behavior:* Locked out of the dashboard; can only view the Events & Announcements page.
+3. **Instructor (Staff)**
+   - **Email:** `instructor@chcc.edu.ph`
+   - *Behavior:* Lands on the instructor dashboard — the classes Prof. Mark Santos teaches, his department's grades, and no back-office links.
 
 4. **Administrator (MIS Office)**
    - **Email:** `admin@chcc.edu.ph`
-   - *Behavior:* Full access as the shared MIS office account — name renders as "Admin" in the drawer and navbar.
+   - *Behavior:* Full access as the shared MIS office account — name renders as "Admin", the dashboard shows roster/faculty/event counts, and the drawer adds Students, Manage Events and Manage Faculty.

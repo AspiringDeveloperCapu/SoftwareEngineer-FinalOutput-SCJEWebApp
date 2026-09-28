@@ -10,15 +10,38 @@ This project is a migration of the **SCJE/BSISM Student System** from a planned 
 - **Database**: Mock JSON (representing MIS Office data) designed to be easily swappable to PostgreSQL or MySQL in the future.
 
 ## 3. User Roles & Access Control
-The system is built to accommodate three main types of users:
-1. **Admin / Staff** (one shared account for the MIS office, not a personal one)
-2. **Instructors**
-3. **Students**
+A strict hierarchy, highest to lowest:
 
-### Routing & Department Logic
-Access to features is strictly gated based on the user's department:
-- **SCJE & ISM Students (e.g., Criminology):** Granted full access to the Main Dashboard, Instructors, Schedules, and Grades.
-- **Out-of-Department / Guests:** Routed immediately to a restricted **View-Only Mode**. They are locked out of the dashboard and can only view Upcoming/Recent Events and Announcements.
+1. **Admin** — one shared account for the MIS office, not a personal one.
+2. **Instructor**
+3. **Student**
+4. **View-only** — a restricted session with events only; no demo account signs in as view-only.
+
+### The capability table
+`frontend/src/access.ts` is the single authority: it maps every role to its
+dashboard and sidebar links, and `components/Protected.tsx` uses the same roles
+to gate routes. Nothing else in the app hard-codes a role check.
+
+| Capability | view-only | student | instructor | admin |
+|---|---|---|---|---|
+| Events (`/events`, `/events/:id`) | ✅ | ✅ | ✅ | ✅ |
+| Dashboard, Instructors, Schedule, Grades, Profile | — | ✅ | ✅ | ✅ |
+| Grades scope | — | own record | department | every student |
+| Schedule scope | — | own classes | classes they teach | school-wide |
+| Dashboard stats | events only | subjects / GPA | classes handled | students / faculty / events |
+| Student roster (`/students`) | — | — | — | ✅ |
+| Manage events / manage faculty | — | — | — | ✅ |
+
+**Department logic** still applies inside the hierarchy: an instructor's grades
+and schedule are scoped to their department (`SCJE` / `ISM`), and the classes
+they see are matched by name against the timetable.
+
+**Unrecognized accounts** never get in: an unknown email or password returns
+`401 { "message": "Account not recognized." }` — the same wording for both, so
+the API doesn't reveal which addresses exist — and nothing is written to
+`localStorage`. A session whose role the table doesn't recognise is discarded on
+read (`getSession()` returns `null`), which lands the user back on the login
+screen rather than on a dashboard.
 
 ## 4. System Workflows
 
@@ -31,19 +54,30 @@ Access to features is strictly gated based on the user's department:
    - Birthday
    - Course / Section
    - Gender
-4. Once completed, the session is updated and they are routed based on their department.
+4. Once completed, the session is updated and they land on the dashboard their role maps to.
 
 ## 5. UI Architecture
 
 ### Drawer (Sidebar)
-The drawer dynamically renders based on the session data. It includes:
-- **User Info**: Picture, Name, Birthday, and Course/Department.
-- **Menu Items**: Dashboard, Instructors, Schedule, Achievement/Grades, Events/Announcement.
+The drawer reads the session and renders from `linksFor(role)` — it never
+hard-codes who sees what. It includes:
+- **User Info**: Picture, Name, a **role badge** (gold `ADMIN`, crimson
+  `INSTRUCTOR`, white `STUDENT`) and Course/Department.
+- **Menu Items**: students and instructors get Dashboard, Instructors, Schedule,
+  Grades, Events; the admin tier adds Students, Manage Events and Manage Faculty;
+  a session-less (view-only) visitor gets Events alone.
 
 ### Main Dashboard Body
-- **Dashboard Hero**: Includes a "Pin option" for critical alerts or featured news.
-- **News / Announcement Section**
-- **Specific Feature Cards**: Quick access to Schedules, Grades, and Instructors.
+One route (`/dashboard`), four screens — `pages/Dashboard.tsx` is a dispatcher
+that picks by role:
+- **Student** (`dashboards/StudentDashboard.tsx`): pinned hero, enrolled
+  subjects / GPA / notifications, upcoming classes, recent events.
+- **Instructor** (`InstructorDashboard.tsx`): classes handled, subjects, students
+  taught, then *My Classes* and recent events.
+- **Admin** (`AdminDashboard.tsx`): students / faculty / events counts, three
+  back-office shortcuts, a faculty snapshot and recent events.
+- **View-only** (`ViewOnlyDashboard.tsx`, `/view-only`): hero plus the full event
+  list — no statistics, no academic pages.
 
 ### Navigation Bar
 - Features the **"Administration"** dropdown. When clicked, it fetches and displays a list of current Faculty Members and Officers.
