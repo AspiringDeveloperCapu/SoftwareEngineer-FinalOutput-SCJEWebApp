@@ -17,6 +17,7 @@ Based on the original system requirements, this web app implements:
 *   **Installable PWA**: A web app manifest (same name, icon and `#0B3D63` theme as the Flutter app) lets Chrome/Edge install it to the taskbar or home screen.
 *   **Offline support**: The service worker precaches the app shell and stores the last successful response of every `GET /api/…`, so deep links and content still load with no connection. A gold strip at the bottom says so, so saved data is never mistaken for fresh data.
 *   **Flutter-Inspired Theme**: Matches the original `scje_system` mobile app styling (Navy, Crimson, Gold, Material 3 borders).
+*   **Dark mode**: One token palette (`:root` light / `[data-theme="dark"]` dark) in `index.css`, so every screen switches at once. The moon/sun button in the navbar — and on the login screen — is applied before the first paint, follows the OS preference when you have not chosen, and is remembered in `localStorage`.
 
 ## Project Structure
 ```text

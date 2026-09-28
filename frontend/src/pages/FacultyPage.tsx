@@ -31,7 +31,7 @@ export default function FacultyPage() {
       <main className="main-content">
         <Navbar />
         <div className="dashboard-body">
-          <h2 style={{ color: "#0B3D63", marginBottom: "16px" }}>Faculty Members & Officers</h2>
+          <h2 style={{ color: "var(--heading)", marginBottom: "16px" }}>Faculty Members & Officers</h2>
 
           {/* Department Filter */}
           <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
@@ -42,9 +42,9 @@ export default function FacultyPage() {
                 style={{
                   padding: "8px 16px",
                   borderRadius: "99px",
-                  border: filter === dept ? "none" : "1px solid #ddd",
-                  backgroundColor: filter === dept ? "#0B3D63" : "#fff",
-                  color: filter === dept ? "#fff" : "#06263D",
+                  border: filter === dept ? "none" : "1px solid var(--border-strong)",
+                  backgroundColor: filter === dept ? "var(--brand)" : "var(--surface)",
+                  color: filter === dept ? "var(--on-brand)" : "var(--text)",
                   fontWeight: 600,
                   fontSize: "0.85rem",
                   cursor: "pointer",
@@ -63,17 +63,17 @@ export default function FacultyPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                   <div style={{
                     width: "48px", height: "48px", borderRadius: "50%",
-                    background: "linear-gradient(135deg, #0B3D63, #8C1D40)",
+                    background: "linear-gradient(135deg, var(--brand), var(--accent-solid))",
                     display: "flex", justifyContent: "center", alignItems: "center",
                     color: "white", fontWeight: 800, fontSize: "1.1rem", flexShrink: 0
                   }}>
                     {f.name.charAt(0)}
                   </div>
                   <div>
-                    <strong style={{ color: "#06263D", fontSize: "1rem" }}>{f.name}</strong>
-                    <p style={{ color: "#8C1D40", fontSize: "0.85rem", fontWeight: 600, margin: "2px 0" }}>{f.position}</p>
-                    <p style={{ color: "#666", fontSize: "0.8rem", margin: 0 }}>{f.specialization} · {f.department}</p>
-                    <p style={{ color: "#0B3D63", fontSize: "0.8rem", margin: "4px 0 0 0" }}>{f.email}</p>
+                    <strong style={{ color: "var(--text)", fontSize: "1rem" }}>{f.name}</strong>
+                    <p style={{ color: "var(--accent)", fontSize: "0.85rem", fontWeight: 600, margin: "2px 0" }}>{f.position}</p>
+                    <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", margin: 0 }}>{f.specialization} · {f.department}</p>
+                    <p style={{ color: "var(--heading)", fontSize: "0.8rem", margin: "4px 0 0 0" }}>{f.email}</p>
                   </div>
                 </div>
               </div>
@@ -82,7 +82,7 @@ export default function FacultyPage() {
 
           {filtered.length === 0 && (
             <div className="card" style={{ padding: "48px", textAlign: "center" }}>
-              <p style={{ color: "#666" }}>No faculty members found.</p>
+              <p style={{ color: "var(--text-muted)" }}>No faculty members found.</p>
             </div>
           )}
         </div>

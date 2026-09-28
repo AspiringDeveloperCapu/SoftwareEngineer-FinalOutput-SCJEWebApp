@@ -20,8 +20,8 @@ export default function Drawer() {
     display: "block",
     width: "100%",
     padding: "14px 24px",
-    backgroundColor: isActive(path) ? "#06263D" : "transparent",
-    borderLeft: isActive(path) ? "3px solid #C9A227" : "3px solid transparent",
+    backgroundColor: isActive(path) ? "var(--brand-strong)" : "transparent",
+    borderLeft: isActive(path) ? "3px solid var(--gold)" : "3px solid transparent",
     fontWeight: isActive(path) ? 700 : 500,
     transition: "all 0.2s",
     fontSize: "0.95rem"
@@ -33,13 +33,13 @@ export default function Drawer() {
       <Link to="/profile" style={{ textDecoration: "none", color: "white" }}>
         <div className="user-info" style={{ cursor: "pointer", transition: "background 0.2s" }}>
           {user?.picture ? (
-            <img src={user.picture} alt="Profile" style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", margin: "0 auto 12px", display: "block", border: "2px solid #C9A227" }} />
+            <img src={user.picture} alt="Profile" style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", margin: "0 auto 12px", display: "block", border: "2px solid var(--gold)" }} />
           ) : (
             <div className="avatar-placeholder"></div>
           )}
 
           <h2 style={{ fontSize: "1.1rem" }}>{user ? user.name : "Student Name"}</h2>
-          <p style={{ fontWeight: 600, color: "#C9A227" }}>{user ? user.department : "Department"}</p>
+          <p style={{ fontWeight: 600, color: "var(--gold)" }}>{user ? user.department : "Department"}</p>
 
           {user?.course && <p style={{ fontSize: "0.8rem", marginTop: "4px", opacity: 0.8 }}>{user.course}</p>}
           {user?.birthday && <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", marginTop: "4px" }}>Born: {user.birthday}</p>}

@@ -11,7 +11,7 @@ This project is a migration of the **SCJE/BSISM Student System** from a planned 
 
 ## 3. User Roles & Access Control
 The system is built to accommodate three main types of users:
-1. **Admin / Staff** (e.g., Sir Yalung, Deans)
+1. **Admin / Staff** (one shared account for the MIS office, not a personal one)
 2. **Instructors**
 3. **Students**
 
@@ -47,6 +47,20 @@ The drawer dynamically renders based on the session data. It includes:
 
 ### Navigation Bar
 - Features the **"Administration"** dropdown. When clicked, it fetches and displays a list of current Faculty Members and Officers.
+- Hosts the **theme toggle** (`ThemeToggle`), alongside the notifications bell and logout.
+
+### Theming (Light / Dark)
+- `index.css` defines **one palette** as CSS custom properties: `:root` holds the
+  light values, `[data-theme="dark"]` on `<html>` overrides them. Components only
+  ever reference a token by role (`--text`, `--heading`, `--surface`, `--card`,
+  `--brand`, `--gold`, `--on-gold`, …), never a raw hex — which is why one
+  attribute flip re-skins every screen, including inline styles on JSX.
+- `theme.ts` reads the stored choice, falls back to `prefers-color-scheme`, and
+  `main.tsx` applies it **before React renders**, so there is no light flash on
+  first paint. `setTheme()` writes both `localStorage` and the attribute.
+- `--on-gold` stays `#06263D` in both themes: gold is the brand accent used for
+  buttons, banners and badges, so its label is always the dark navy (a fixed
+  pairing instead of a token that flips and turns unreadable).
 
 ## 6. PWA & Offline Strategy
 

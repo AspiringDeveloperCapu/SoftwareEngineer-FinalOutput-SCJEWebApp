@@ -56,8 +56,9 @@ export default function ProfilePage() {
 
   const inputStyle: React.CSSProperties = {
     padding: "12px 16px", borderRadius: "12px",
-    border: "1px solid rgba(0,0,0,0.1)", fontSize: "1rem",
-    outlineColor: "#0B3D63", width: "100%"
+    border: "1px solid var(--border-strong)", fontSize: "1rem",
+    outlineColor: "var(--heading)", width: "100%",
+    backgroundColor: "var(--surface)", color: "var(--text)"
   };
 
   return (
@@ -66,49 +67,49 @@ export default function ProfilePage() {
       <main className="main-content">
         <Navbar />
         <div className="dashboard-body">
-          <h2 style={{ color: "#0B3D63", marginBottom: "24px" }}>My Profile</h2>
+          <h2 style={{ color: "var(--heading)", marginBottom: "24px" }}>My Profile</h2>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "24px" }}>
             {/* Profile Card */}
             <div className="card" style={{ padding: "24px", textAlign: "center" }}>
               {user.picture ? (
-                <img src={user.picture} alt="Profile" style={{ width: "120px", height: "120px", borderRadius: "50%", objectFit: "cover", border: "3px solid #C9A227", margin: "0 auto 16px" }} />
+                <img src={user.picture} alt="Profile" style={{ width: "120px", height: "120px", borderRadius: "50%", objectFit: "cover", border: "3px solid var(--gold)", margin: "0 auto 16px" }} />
               ) : (
-                <div style={{ width: "120px", height: "120px", borderRadius: "50%", background: "linear-gradient(135deg, #0B3D63, #8C1D40)", margin: "0 auto 16px", display: "flex", justifyContent: "center", alignItems: "center", color: "white", fontSize: "3rem", fontWeight: 800 }}>
+                <div style={{ width: "120px", height: "120px", borderRadius: "50%", background: "linear-gradient(135deg, var(--brand), var(--accent-solid))", margin: "0 auto 16px", display: "flex", justifyContent: "center", alignItems: "center", color: "white", fontSize: "3rem", fontWeight: 800 }}>
                   {user.name?.charAt(0) || "?"}
                 </div>
               )}
-              <h3 style={{ color: "#06263D", marginBottom: "4px" }}>{user.name}</h3>
-              <p style={{ color: "#8C1D40", fontWeight: 600, fontSize: "0.9rem" }}>{user.role?.toUpperCase()}</p>
-              <p style={{ color: "#666", fontSize: "0.85rem", marginTop: "8px" }}>{user.department} — {user.course}</p>
-              {user.birthday && <p style={{ color: "#888", fontSize: "0.8rem", marginTop: "4px" }}>Born: {user.birthday}</p>}
+              <h3 style={{ color: "var(--text)", marginBottom: "4px" }}>{user.name}</h3>
+              <p style={{ color: "var(--accent)", fontWeight: 600, fontSize: "0.9rem" }}>{user.role?.toUpperCase()}</p>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginTop: "8px" }}>{user.department} — {user.course}</p>
+              {user.birthday && <p style={{ color: "var(--text-faint)", fontSize: "0.8rem", marginTop: "4px" }}>Born: {user.birthday}</p>}
             </div>
 
             {/* Edit Form */}
             <div className="card" style={{ padding: "24px" }}>
-              <h3 style={{ color: "#06263D", marginBottom: "20px" }}>Edit Profile</h3>
+              <h3 style={{ color: "var(--text)", marginBottom: "20px" }}>Edit Profile</h3>
 
               {saved && (
-                <div style={{ backgroundColor: "#e8f5e9", padding: "12px", borderRadius: "12px", marginBottom: "16px", color: "#2e7d32", fontWeight: 600, fontSize: "0.9rem" }}>
+                <div style={{ backgroundColor: "var(--success-bg)", padding: "12px", borderRadius: "12px", marginBottom: "16px", color: "var(--success)", fontWeight: 600, fontSize: "0.9rem" }}>
                   ✅ Profile saved successfully!
                 </div>
               )}
 
               <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 <div>
-                  <label style={{ fontSize: "0.85rem", color: "#06263D", fontWeight: 600, marginBottom: "4px", display: "block" }}>Full Name</label>
+                  <label style={{ fontSize: "0.85rem", color: "var(--text)", fontWeight: 600, marginBottom: "4px", display: "block" }}>Full Name</label>
                   <input type="text" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} required />
                 </div>
                 <div>
-                  <label style={{ fontSize: "0.85rem", color: "#06263D", fontWeight: 600, marginBottom: "4px", display: "block" }}>Picture URL</label>
+                  <label style={{ fontSize: "0.85rem", color: "var(--text)", fontWeight: 600, marginBottom: "4px", display: "block" }}>Picture URL</label>
                   <input type="url" value={picture} onChange={(e) => setPicture(e.target.value)} style={inputStyle} placeholder="https://..." />
                 </div>
                 <div>
-                  <label style={{ fontSize: "0.85rem", color: "#06263D", fontWeight: 600, marginBottom: "4px", display: "block" }}>Birthday</label>
+                  <label style={{ fontSize: "0.85rem", color: "var(--text)", fontWeight: 600, marginBottom: "4px", display: "block" }}>Birthday</label>
                   <input type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ fontSize: "0.85rem", color: "#06263D", fontWeight: 600, marginBottom: "4px", display: "block" }}>Gender</label>
+                  <label style={{ fontSize: "0.85rem", color: "var(--text)", fontWeight: 600, marginBottom: "4px", display: "block" }}>Gender</label>
                   <select value={gender} onChange={(e) => setGender(e.target.value)} style={inputStyle}>
                     <option value="">Select</option>
                     <option value="Male">Male</option>

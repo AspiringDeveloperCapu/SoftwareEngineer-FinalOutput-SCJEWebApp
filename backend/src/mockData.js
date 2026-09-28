@@ -60,7 +60,7 @@ const mockUsers = [
     id: 5,
     email: "admin@chcc.edu.ph",
     password: "password123",
-    name: "Admin Staff",
+    name: "Admin",
     department: "SCJE",
     course: "",
     section: "",
@@ -109,7 +109,7 @@ const mockEvents = [
 ];
 
 const mockFaculty = [
-  { id: 1, name: "Sir Arjay Yalung", position: "Instructor", department: "SCJE", specialization: "Criminal Law", email: "ayalung@chcc.edu.ph" },
+  { id: 1, name: "Admin", position: "MIS Office", department: "SCJE", specialization: "System Administration", email: "admin@chcc.edu.ph" },
   { id: 2, name: "Dr. Elena Reyes", position: "Dean", department: "SCJE", specialization: "Criminology", email: "ereyes@chcc.edu.ph" },
   { id: 3, name: "Prof. Mark Santos", position: "Instructor", department: "SCJE", specialization: "Forensic Science", email: "msantos@chcc.edu.ph" },
   { id: 4, name: "Prof. Ana Cruz", position: "Instructor", department: "ISM", specialization: "Database Systems", email: "acruz@chcc.edu.ph" },
@@ -137,12 +137,12 @@ const mockGrades = {
 const mockSchedules = {
   1: [
     { day: "Monday", time: "7:30 AM - 9:00 AM", subject: "CRIM 101", room: "Room 301", instructor: "Dr. Elena Reyes" },
-    { day: "Monday", time: "9:30 AM - 11:00 AM", subject: "CRIM 102", room: "Room 302", instructor: "Sir Arjay Yalung" },
+    { day: "Monday", time: "9:30 AM - 11:00 AM", subject: "CRIM 102", room: "Room 302", instructor: "Prof. Mark Santos" },
     { day: "Tuesday", time: "7:30 AM - 9:00 AM", subject: "CRIM 103", room: "Lab 1", instructor: "Prof. Mark Santos" },
     { day: "Tuesday", time: "9:30 AM - 11:00 AM", subject: "GE 101", room: "Room 201", instructor: "Prof. Ana Cruz" },
     { day: "Wednesday", time: "7:30 AM - 9:00 AM", subject: "CRIM 101", room: "Room 301", instructor: "Dr. Elena Reyes" },
     { day: "Wednesday", time: "1:00 PM - 2:30 PM", subject: "PE 1", room: "Gymnasium", instructor: "Coach Garcia" },
-    { day: "Thursday", time: "7:30 AM - 9:00 AM", subject: "CRIM 102", room: "Room 302", instructor: "Sir Arjay Yalung" },
+    { day: "Thursday", time: "7:30 AM - 9:00 AM", subject: "CRIM 102", room: "Room 302", instructor: "Prof. Mark Santos" },
     { day: "Thursday", time: "9:30 AM - 11:00 AM", subject: "NSTP 1", room: "Covered Court", instructor: "Lt. Mendoza" },
     { day: "Friday", time: "7:30 AM - 9:00 AM", subject: "CRIM 103", room: "Lab 1", instructor: "Prof. Mark Santos" },
     { day: "Friday", time: "9:30 AM - 11:00 AM", subject: "GE 101", room: "Room 201", instructor: "Prof. Ana Cruz" }

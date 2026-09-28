@@ -43,20 +43,24 @@ export default function RegisterProfile() {
     }
   };
 
-  const inputStyle = { padding: "12px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.1)" };
+  const inputStyle = {
+    padding: "12px", borderRadius: "8px",
+    border: "1px solid var(--border-strong)",
+    backgroundColor: "var(--surface)", color: "var(--text)"
+  };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "#F6F8FA", padding: "20px" }}>
-      <div style={{ backgroundColor: "white", padding: "32px", borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", maxWidth: "500px", width: "100%" }}>
-        <h2 style={{ color: "#0B3D63", marginBottom: "8px" }}>Complete Your Profile</h2>
-        <p style={{ color: "#8C1D40", marginBottom: "24px", fontSize: "0.9rem" }}>Please fill in these details for your first-time login.</p>
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "var(--surface-alt)", padding: "20px" }}>
+      <div style={{ backgroundColor: "var(--surface)", padding: "32px", borderRadius: "16px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)", maxWidth: "500px", width: "100%" }}>
+        <h2 style={{ color: "var(--heading)", marginBottom: "8px" }}>Complete Your Profile</h2>
+        <p style={{ color: "var(--accent)", marginBottom: "24px", fontSize: "0.9rem" }}>Please fill in these details for your first-time login.</p>
         
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <input type="url" placeholder="Picture URL (optional)" value={picture} onChange={(e)=>setPicture(e.target.value)} style={inputStyle} />
           <input type="text" placeholder="Full Name" value={fullName} onChange={(e)=>setFullName(e.target.value)} style={inputStyle} required />
           
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <label style={{ fontSize: "0.85rem", color: "#06263D", marginBottom: "4px" }}>Birthday</label>
+            <label style={{ fontSize: "0.85rem", color: "var(--text)", marginBottom: "4px" }}>Birthday</label>
             <input type="date" value={birthday} onChange={(e)=>setBirthday(e.target.value)} style={inputStyle} required />
           </div>
 

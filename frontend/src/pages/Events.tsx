@@ -24,10 +24,10 @@ export default function Events() {
   }, []);
 
   const typeColors: Record<string, string> = {
-    seminar: "#0B3D63",
-    sports: "#C9A227",
-    academic: "#8C1D40",
-    social: "#2e7d32"
+    seminar: "var(--brand)",
+    sports: "var(--gold)",
+    academic: "var(--accent-solid)",
+    social: "var(--success-solid)"
   };
 
   return (
@@ -37,7 +37,7 @@ export default function Events() {
         <Navbar />
 
         <div className="dashboard-body">
-          <h2 style={{ color: "#0B3D63", marginBottom: "24px" }}>Events & Announcements</h2>
+          <h2 style={{ color: "var(--heading)", marginBottom: "24px" }}>Events & Announcements</h2>
           <div className="content-grid">
             {events.length > 0 ? (
               events.map((evt) => (
@@ -51,17 +51,17 @@ export default function Events() {
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                     <span style={{
-                      backgroundColor: typeColors[evt.type] || "#666",
+                      backgroundColor: typeColors[evt.type] || "var(--brand)",
                       color: "white", padding: "2px 12px", borderRadius: "99px",
                       fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase"
                     }}>
                       {evt.type}
                     </span>
-                    <span style={{ color: "#888", fontSize: "0.8rem" }}>{evt.date}</span>
+                    <span style={{ color: "var(--text-faint)", fontSize: "0.8rem" }}>{evt.date}</span>
                   </div>
                   <h3 style={{ marginBottom: "8px" }}>{evt.title}</h3>
-                  <p style={{ color: "#666", lineHeight: "1.5", fontSize: "0.9rem" }}>{evt.description.substring(0, 100)}...</p>
-                  <p style={{ color: "#0B3D63", fontSize: "0.8rem", marginTop: "8px" }}>📍 {evt.location}</p>
+                  <p style={{ color: "var(--text-muted)", lineHeight: "1.5", fontSize: "0.9rem" }}>{evt.description.substring(0, 100)}...</p>
+                  <p style={{ color: "var(--heading)", fontSize: "0.8rem", marginTop: "8px" }}>📍 {evt.location}</p>
                 </section>
               ))
             ) : (

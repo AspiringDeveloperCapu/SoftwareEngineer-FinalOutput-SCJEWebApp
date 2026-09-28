@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import OfflineBanner from './components/OfflineBanner';
+import { initTheme } from './theme';
 import './index.css';
 
 /**
@@ -20,6 +21,9 @@ if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
   };
   navigator.serviceWorker.addEventListener('controllerchange', reloadWhenClaimed);
 }
+
+// Before the first paint: a light flash followed by a dark app reads as a bug.
+initTheme();
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
