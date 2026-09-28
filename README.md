@@ -19,6 +19,8 @@ Based on the original system requirements, this web app implements:
 *   **Flutter-Inspired Theme**: Matches the original `scje_system` mobile app styling (Navy, Crimson, Gold, Material 3 borders).
 *   **Dark mode**: One token palette (`:root` light / `[data-theme="dark"]` dark) in `index.css`, so every screen switches at once. The moon/sun button in the navbar — and on the login screen — is applied before the first paint, follows the OS preference when you have not chosen, and is remembered in `localStorage`.
 
+> **`FLUTTER-REVIEW.md`** — full inventory of the companion Flutter app (`../scje_system`) and a feature-by-feature read of what this web app can reuse from it.
+
 ## Project Structure
 ```text
 scje-web-app/
