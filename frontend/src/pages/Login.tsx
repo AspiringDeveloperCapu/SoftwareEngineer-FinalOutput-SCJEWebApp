@@ -149,17 +149,21 @@ export default function Login() {
           <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "16px" }}>Tap one to fill the form</p>
           
           <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "8px" }}>
+            <li onClick={() => fillDemoAccount("ism@chcc.edu.ph")} style={{ padding: "8px", borderRadius: "8px", cursor: "pointer", border: "1px solid var(--border)", fontSize: "0.85rem" }}>
+              <strong style={{ color: "var(--heading)" }}>Student (existing)</strong><br/>
+              ism@chcc.edu.ph
+            </li>
             <li onClick={() => fillDemoAccount("crim@chcc.edu.ph")} style={{ padding: "8px", borderRadius: "8px", cursor: "pointer", border: "1px solid var(--border)", fontSize: "0.85rem" }}>
               <strong style={{ color: "var(--heading)" }}>First-Time Student</strong><br/>
               crim@chcc.edu.ph
             </li>
-            <li onClick={() => fillDemoAccount("ism@chcc.edu.ph")} style={{ padding: "8px", borderRadius: "8px", cursor: "pointer", border: "1px solid var(--border)", fontSize: "0.85rem" }}>
-              <strong style={{ color: "var(--heading)" }}>Standard Student</strong><br/>
-              ism@chcc.edu.ph
-            </li>
             <li onClick={() => fillDemoAccount("guest@chcc.edu.ph")} style={{ padding: "8px", borderRadius: "8px", cursor: "pointer", border: "1px solid var(--border)", fontSize: "0.85rem" }}>
               <strong style={{ color: "var(--heading)" }}>View Only Guest</strong><br/>
               guest@chcc.edu.ph
+            </li>
+            <li onClick={() => fillDemoAccount("admin@chcc.edu.ph")} style={{ padding: "8px", borderRadius: "8px", cursor: "pointer", border: "1px solid var(--border)", fontSize: "0.85rem" }}>
+              <strong style={{ color: "var(--heading)" }}>Administrator</strong><br/>
+              admin@chcc.edu.ph
             </li>
           </ul>
         </div>

@@ -88,10 +88,14 @@ Use the following credentials in the login screen (password for all is `password
    - **Email:** `crim@chcc.edu.ph`
    - *Behavior:* Triggers the First-Time Registration screen, then grants full dashboard access.
    
-2. **Standard ISM Student (Full Access)**
+2. **Existing ISM Student (Full Access)**
    - **Email:** `ism@chcc.edu.ph`
-   - *Behavior:* Bypasses registration and goes straight to the full dashboard.
+   - *Behavior:* Bypasses registration and goes straight to the full dashboard, with a completed profile (picture, birthday, gender) already on file.
 
 3. **Guest / Other Department (View-Only Test)**
    - **Email:** `guest@chcc.edu.ph`
    - *Behavior:* Locked out of the dashboard; can only view the Events & Announcements page.
+
+4. **Administrator (MIS Office)**
+   - **Email:** `admin@chcc.edu.ph`
+   - *Behavior:* Full access as the shared MIS office account — name renders as "Admin" in the drawer and navbar.
