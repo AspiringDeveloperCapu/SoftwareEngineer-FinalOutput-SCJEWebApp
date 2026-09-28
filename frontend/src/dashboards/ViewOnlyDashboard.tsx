@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
 import { getSession } from "../access";
 
@@ -15,9 +14,9 @@ interface EventItem {
 
 /**
  * The landing page: the bottom of the hierarchy - events only, no statistics
- * and no academic pages in the drawer - shown before anyone signs in, so the
- * app has content on first load. A signed-in account never sees it; it is
- * bounced to its own dashboard instead.
+ * and no sidebar - shown before anyone signs in, so the app has content on
+ * first load. A signed-in account never sees it; it is bounced to its own
+ * dashboard instead.
  */
 export default function ViewOnlyDashboard() {
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -36,7 +35,6 @@ export default function ViewOnlyDashboard() {
 
   return (
     <div className="app-container">
-      <Drawer />
       <main className="main-content">
         <Navbar />
 

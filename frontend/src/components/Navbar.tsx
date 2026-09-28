@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 
 interface Faculty {
@@ -68,9 +68,10 @@ export default function Navbar() {
 
   return (
     <header className="navbar" style={{ position: "relative" }}>
-      <div className="nav-title" style={{ color: "var(--heading)" }}>
+      {/* Home link - the only navigation a sidebar-less visitor has */}
+      <Link to="/" className="nav-title" style={{ color: "var(--heading)", textDecoration: "none" }}>
         SCJE Student Hub
-      </div>
+      </Link>
 
       <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
         {/* Theme */}

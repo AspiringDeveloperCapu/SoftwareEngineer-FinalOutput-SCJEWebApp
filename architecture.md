@@ -91,7 +91,9 @@ hard-codes who sees what. It includes:
   `INSTRUCTOR`, white `STUDENT`) and Course/Department.
 - **Menu Items**: students and instructors get Dashboard, Instructors, Schedule,
   Grades, Events; the admin tier adds Accounts, Announcements, Manage Events and
-  Manage Faculty; a session-less (view-only) visitor gets Events alone.
+  Manage Faculty. The drawer is session-only: a view-only visitor never sees a
+  sidebar (the landing and the public event pages are full-width, with the
+  navbar's home link and Sign In as their navigation).
 
 ### Main Dashboard Body
 One route (`/dashboard`), four screens — `pages/Dashboard.tsx` is a dispatcher
@@ -107,7 +109,7 @@ greets the user and, when the admin has pinned something, shows that pin
   Faculty), a faculty snapshot and recent events.
 - **View-only** (`ViewOnlyDashboard.tsx`, `/` — also aliased at `/view-only`):
   hero plus the full event list and Sign in / Browse all events buttons — no
-  statistics, no academic pages. It is the landing page, so it never asks for a
+  statistics, no sidebar. It is the landing page, so it never asks for a
   session; a signed-in visitor opening it is sent to `/dashboard`.
 
 ### Back office screens
