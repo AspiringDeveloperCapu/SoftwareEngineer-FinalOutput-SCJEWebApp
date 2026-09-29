@@ -50,7 +50,9 @@ dashboard hero stacks — and the public feed offers
 **Latest / Upcoming / Finished** filters; finished events are never deleted,
 they simply move behind the Finished filter as records.
 
-**Announcements.** Admin-authored, visible to everyone on the Events page. The
+**Announcements.** Admin-authored, visible to everyone on the Events page, with
+optional start/end `time` fields (shown as a 🕐 range on the feed, the manage
+list and the hero pin). The
 pinned announcements (plus pinned events, announcements first) are served on the
 dashboard summary as `pins[]`, which `PinnedHero` stacks on all three dashboards
 with a `📌 N Pinned` badge.
@@ -155,7 +157,11 @@ feed:
   frost in dark). Inputs and the navbar keep their own `--glass` tokens.
 - `theme.ts` reads the stored choice, falls back to `prefers-color-scheme`, and
   `main.tsx` applies it **before React renders**, so there is no light flash on
-  first paint. `setTheme()` writes both `localStorage` and the attribute.
+  first paint. `setTheme()` writes both `localStorage` and the attribute, and
+  wraps the flip in a temporary `.theme-anim` class so both themes crossfade
+  over ~0.4s instead of snapping (honouring `prefers-reduced-motion`).
+- Native `<select>` options are painted with `--surface`/`--text` too, so the
+  dropdown popup stays readable in dark mode.
 - `--on-gold` stays `#06263D` in both themes: gold is the brand accent used for
   buttons, banners and badges, so its label is always the dark navy (a fixed
   pairing instead of a token that flips and turns unreadable).

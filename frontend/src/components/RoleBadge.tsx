@@ -27,6 +27,7 @@ export default function RoleBadge({ role }: { role: RoleName }) {
         fontWeight: 800,
         letterSpacing: "0.6px",
         backgroundColor: style.background,
+        border: "1px solid var(--border-strong)",
         color: style.color,
         whiteSpace: "nowrap"
       }}

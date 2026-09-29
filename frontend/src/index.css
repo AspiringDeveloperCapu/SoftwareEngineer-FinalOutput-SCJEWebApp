@@ -68,9 +68,11 @@
   --blur: blur(12px);
 
   /* Text cards: frosted panels the gradient wash shows through. */
-  --card-glass: rgba(255, 255, 255, 0.66);
-  --card-glass-border: rgba(90, 40, 140, 0.16);
+  --card-glass: rgba(255, 255, 255, 0.60);
+  --card-glass-border: rgba(90, 40, 140, 0.20);
   --blur-card: blur(16px) saturate(1.3);
+  --sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 45%);
+  --shadow-card: 0 10px 28px rgba(61, 26, 92, 0.10);
 }
 
 [data-theme="dark"] {
@@ -125,9 +127,11 @@
   --glass-border: rgba(255, 255, 255, 0.14);
 
   /* Text cards: darker frost so the gradient wash reads through them. */
-  --card-glass: rgba(32, 12, 46, 0.62);
-  --card-glass-border: rgba(255, 255, 255, 0.14);
+  --card-glass: rgba(28, 10, 42, 0.52);
+  --card-glass-border: rgba(255, 255, 255, 0.18);
   --blur-card: blur(16px) saturate(1.3);
+  --sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 42%);
+  --shadow-card: 0 14px 34px rgba(0, 0, 0, 0.32);
 }
 
 * {
@@ -160,6 +164,27 @@ input::placeholder,
 textarea::placeholder {
   color: var(--text-faint);
   opacity: 1;
+}
+
+/* The native <select> popup otherwise inherits the theme's light text onto the
+   OS-painted white list - unreadable in dark mode. */
+select option {
+  background-color: var(--surface);
+  color: var(--text);
+}
+
+/* Theme toggle: the flip crossfades instead of snapping. setTheme() (theme.ts)
+   wraps the change in .theme-anim for ~450ms, so only the toggle is animated -
+   no interaction in the app ever pays this cost. */
+@media (prefers-reduced-motion: no-preference) {
+  .theme-anim,
+  .theme-anim *,
+  .theme-anim *::before,
+  .theme-anim *::after {
+    transition: background-color 0.4s ease, background-image 0.4s ease,
+      border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease,
+      fill 0.4s ease !important;
+  }
 }
 
 .app-container {
@@ -543,14 +568,14 @@ textarea::placeholder {
 
 .hero {
   background-color: var(--card-glass);
-  background-image: var(--grad-panel);
+  background-image: var(--grad-panel), var(--sheen);
   backdrop-filter: var(--blur-card);
   -webkit-backdrop-filter: var(--blur-card);
   padding: 24px;
   border-radius: 16px; /* Corners.lg */
   margin-bottom: 24px;
   border: 1px solid var(--card-glass-border);
-  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .hero h1 {
@@ -580,12 +605,13 @@ textarea::placeholder {
 
 .card {
   background-color: var(--card-glass);
+  background-image: var(--sheen);
   backdrop-filter: var(--blur-card);
   -webkit-backdrop-filter: var(--blur-card);
   padding: 24px;
   border-radius: 16px; /* Corners.lg */
   border: 1px solid var(--card-glass-border);
-  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .card h3 {

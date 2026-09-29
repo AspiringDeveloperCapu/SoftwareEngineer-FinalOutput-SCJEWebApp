@@ -1,12 +1,15 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Session } from "../access";
+import { formatTimeRange } from "../format";
 
 export interface PinSummary {
   type: "announcement" | "event";
   id: number;
   title: string;
   date: string;
+  time?: string;
+  endTime?: string;
   body?: string;
   category?: string;
   location?: string;
@@ -70,7 +73,7 @@ export default function PinnedHero({ user, subtitle, pins, fallbackBadge }: Prop
               <strong style={{ color: "var(--heading)", fontSize: "1.05rem" }}>{pin.title}</strong>
               <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", margin: "6px 0 0", lineHeight: 1.5 }}>
                 {pin.type === "announcement"
-                  ? (pin.body || "").slice(0, 160)
+                  ? `${(pin.body || "").slice(0, 160)}${formatTimeRange(pin.time, pin.endTime) ? ` · ⏰ ${formatTimeRange(pin.time, pin.endTime)}` : ""}`
                   : `${pin.date}${pin.location ? ` · ${pin.location}` : ""}`}
               </p>
               <span style={{ display: "inline-block", marginTop: "8px", color: "var(--accent)", fontWeight: 700, fontSize: "0.8rem" }}>

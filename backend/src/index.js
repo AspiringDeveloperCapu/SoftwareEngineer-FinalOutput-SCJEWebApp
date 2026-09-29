@@ -77,6 +77,8 @@ const pinsForSummary = () => [
       title: a.title,
       body: a.body,
       date: a.date,
+      time: a.time,
+      endTime: a.endTime,
       category: a.category
     })),
   ...mockEvents
@@ -232,7 +234,7 @@ app.get('/api/announcements/pinned', (req, res) => {
 });
 
 app.post('/api/announcements', authenticate, requireRole('admin'), (req, res) => {
-  const { title, body, category, pinned } = req.body;
+  const { title, body, category, pinned, time, endTime } = req.body;
   if (!title || !body) return res.status(400).json({ message: "Title and body are required." });
 
   const announcement = {
@@ -241,6 +243,8 @@ app.post('/api/announcements', authenticate, requireRole('admin'), (req, res) =>
     body,
     author: req.user.name,
     date: new Date().toISOString().slice(0, 10),
+    time: time || "",
+    endTime: endTime || "",
     category: category || "announcement",
     pinned: !!pinned
   };
@@ -252,12 +256,14 @@ app.put('/api/announcements/:id', authenticate, requireRole('admin'), (req, res)
   const index = mockAnnouncements.findIndex(a => a.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ message: "Announcement not found" });
 
-  const { title, body, category, pinned } = req.body;
+  const { title, body, category, pinned, time, endTime } = req.body;
   mockAnnouncements[index] = {
     ...mockAnnouncements[index],
     ...(title && { title }),
     ...(body && { body }),
     ...(category && { category }),
+    ...(time !== undefined && { time }),
+    ...(endTime !== undefined && { endTime }),
     ...(pinned !== undefined && { pinned: !!pinned })
   };
   res.json({ announcement: mockAnnouncements[index] });

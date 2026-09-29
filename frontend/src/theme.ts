@@ -19,6 +19,13 @@ export function initTheme(): void {
 
 /** Persists the choice, so it survives reloads and new tabs. */
 export function setTheme(theme: Theme): void {
+  // .theme-anim gives every surface a ~0.4s crossfade while the attribute
+  // flips (see the rule in index.css), so the toggle doesn't flash the eyes.
+  // Initial load (initTheme) stays instant - a transition there would only
+  // delay the first paint.
+  const root = document.documentElement;
+  root.classList.add("theme-anim");
   localStorage.setItem(KEY, theme);
-  document.documentElement.dataset.theme = theme;
+  root.dataset.theme = theme;
+  window.setTimeout(() => root.classList.remove("theme-anim"), 450);
 }

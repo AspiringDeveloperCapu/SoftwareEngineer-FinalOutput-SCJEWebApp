@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import { formatWhen } from "../format";
 
 interface Announcement {
   id: number;
@@ -7,11 +8,13 @@ interface Announcement {
   body: string;
   author: string;
   date: string;
+  time?: string;
+  endTime?: string;
   category: string;
   pinned: boolean;
 }
 
-const EMPTY = { title: "", body: "", category: "announcement", pinned: false };
+const EMPTY = { title: "", body: "", category: "announcement", pinned: false, time: "", endTime: "" };
 
 const CATEGORIES = ["announcement", "academic", "reminder", "event"];
 
@@ -45,7 +48,10 @@ export default function ManageAnnouncementsPage() {
 
   const startNew = () => { setForm(EMPTY); setEditing(true); setError(null); };
   const startEdit = (a: Announcement) => {
-    setForm({ id: a.id, title: a.title, body: a.body, category: a.category, pinned: a.pinned });
+    setForm({
+      id: a.id, title: a.title, body: a.body, category: a.category, pinned: a.pinned,
+      time: a.time || "", endTime: a.endTime || ""
+    });
     setEditing(true);
     setError(null);
   };
@@ -102,7 +108,7 @@ export default function ManageAnnouncementsPage() {
             <div>
               <h2 style={{ color: "var(--heading)", margin: 0 }}>Manage Announcements</h2>
               <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", margin: "4px 0 0" }}>
-                Published to the Events page and the dashboard hero. Only one can be pinned.
+                Published to the Events page and the dashboard hero. Any number can stay pinned.
               </p>
             </div>
             {!editing && (
@@ -125,6 +131,16 @@ export default function ManageAnnouncementsPage() {
                   </select>
                 </label>
               </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                  Start time
+                  <input type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} style={field} />
+                </label>
+                <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                  End time
+                  <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} style={field} />
+                </label>
+              </div>
               <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
                 Body
                 <textarea required rows={4} value={form.body} onChange={e => setForm({ ...form, body: e.target.value })} style={{ ...field, resize: "vertical" }} />
@@ -136,7 +152,7 @@ export default function ManageAnnouncementsPage() {
                   onChange={e => setForm({ ...form, pinned: e.target.checked })}
                   style={{ width: "18px", height: "18px", accentColor: "var(--brand)" }}
                 />
-                Pin to the dashboard hero (replaces the current pin)
+                Pin to the dashboard hero
               </label>
 
               {error && <p style={{ color: "var(--danger)", margin: 0, fontSize: "0.9rem" }}>{error}</p>}
@@ -169,7 +185,7 @@ export default function ManageAnnouncementsPage() {
                   </div>
                   <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", margin: "8px 0 0", lineHeight: 1.5 }}>{a.body}</p>
                   <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", margin: "8px 0 0" }}>
-                    {a.date} · {a.author}
+                    {formatWhen(a.date, a.time, a.endTime)} · {a.author}
                   </p>
                 </div>
                 <div style={{ display: "flex", gap: "10px", flexShrink: 0 }}>

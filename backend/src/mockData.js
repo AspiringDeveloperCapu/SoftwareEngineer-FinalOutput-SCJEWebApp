@@ -182,6 +182,8 @@ const mockAnnouncements = [
     body: "Midterm examinations run from October 5 to 10. Check your timetable and bring your school ID. Reviewers are posted on the department bulletin board.",
     author: "Admin",
     date: "2026-09-26",
+    time: "07:30",
+    endTime: "12:00",
     category: "academic",
     pinned: true
   },
@@ -191,6 +193,8 @@ const mockAnnouncements = [
     body: "Enlistment opens on October 20. Settle any outstanding balance first, then enlist with your section adviser.",
     author: "Admin",
     date: "2026-09-22",
+    time: "08:00",
+    endTime: "17:00",
     category: "reminder",
     pinned: false
   },
@@ -200,6 +204,8 @@ const mockAnnouncements = [
     body: "Registration for the Intramurals closes on October 25. See your section representative to join a team.",
     author: "Admin",
     date: "2026-09-18",
+    time: "09:00",
+    endTime: "16:00",
     category: "event",
     pinned: false
   },
@@ -209,6 +215,8 @@ const mockAnnouncements = [
     body: "The library stays open until 8PM on weekdays for the rest of the semester.",
     author: "Admin",
     date: "2026-09-15",
+    time: "07:00",
+    endTime: "20:00",
     category: "reminder",
     pinned: false
   }

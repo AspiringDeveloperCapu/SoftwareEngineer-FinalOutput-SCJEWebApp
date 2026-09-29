@@ -103,6 +103,7 @@ const RoleBadge = ({ role }: { role: Account["role"] }) => (
       fontWeight: 800,
       letterSpacing: "0.5px",
       backgroundColor: (ROLE_STYLE[role] || ROLE_STYLE.student).background,
+      border: "1px solid var(--border-strong)",
       color: (ROLE_STYLE[role] || ROLE_STYLE.student).color
     }}
   >
