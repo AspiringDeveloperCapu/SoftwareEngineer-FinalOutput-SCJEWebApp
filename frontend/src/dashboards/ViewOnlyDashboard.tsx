@@ -24,6 +24,8 @@ interface Announcement {
   body: string;
   author: string;
   date: string;
+  time?: string;
+  endTime?: string;
   category: string;
   pinned: boolean;
 }
@@ -205,7 +207,7 @@ export default function ViewOnlyDashboard() {
                       </div>
                       <h3 style={{ marginBottom: "8px" }}>{a.title}</h3>
                       <p style={{ color: "var(--text-muted)", lineHeight: "1.5", fontSize: "0.9rem" }}>{a.body}</p>
-                      <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", marginTop: "8px" }}>{a.date} · {a.author}</p>
+                      <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", marginTop: "8px" }}>{formatWhen(a.date, a.time, a.endTime)} · {a.author}</p>
                     </section>
                   ))}
               </div>

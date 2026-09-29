@@ -206,7 +206,9 @@ select option {
   position: sticky;
   top: 0;
   z-index: 60;
-  background-color: var(--grad-bar);
+  /* shorthand: --grad-bar is a gradient in dark mode, which background-color
+     would silently drop (it only accepts colours). */
+  background: var(--grad-bar);
   backdrop-filter: blur(16px) saturate(1.4);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
   padding: 10px 20px;
@@ -534,7 +536,9 @@ select option {
 }
 
 .login-btn {
-  background-color: var(--grad-primary);
+  /* shorthand: --grad-primary is a gradient, which background-color would
+     silently drop (it only accepts colours) - leaving a transparent button. */
+  background: var(--grad-primary);
   color: var(--on-primary);
   border: none;
   padding: 12px 24px;
