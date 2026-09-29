@@ -148,6 +148,29 @@ linking to the feed:
   chips, pin star per row (multi-pin).
 - **Manage Faculty** (`/manage-faculty`): instructor/staff directory CRUD.
 
+### Weekly Timetable (`/schedule`, `SchedulePage.tsx` + `schedule.ts`)
+One route, three titles — students get **Class Schedule**, instructors **My
+Teaching Schedule**, admins **School Schedule** — all rendered as a weekly grid
+(day columns × time rows, `PX_PER_MIN` scaling, whole-hour bounds) rather than a
+day-by-day list:
+- `schedule.ts` holds the pure logic: `parseRange`/`formatRange` (12h/24h,
+  `-`/`–`/`to` separators), `packOverlaps` (greedy side-by-side columns so
+  concurrent classes never cover each other), `subjectStyle` (stable 4-colour
+  hash palette) and `normSection` (sections are spelled `1A` and `1-A`
+  inconsistently in the seed data, so they are normalised before comparing).
+- Every block shows subject, room · instructor and a section chip; the current
+  day column is highlighted, a **NOW** pill/line tracks the clock (ticked every
+  30s), past days are dimmed, and rows with unparseable times fall back to a
+  plain list so nothing is hidden.
+- Scope matches the role: the student API returns only their rows, the
+  instructor only classes they teach, the admin everything (21 seed rows). A
+  search box and an **All sections** filter narrow the grid for any role.
+- Admins edit **on the grid** (hover ✎/✕, `+ Add class`): each write walks the
+  target section's roster and uses the existing per-student
+  `POST/PUT/DELETE /api/admin/users/:id/schedule[/:rowIndex]` endpoints —
+  matching rows by day+time+subject+room — so an edit lands on every student in
+  that section at once. The data model stays per-student and untouched.
+
 ### Navigation Bar
 - Features the **"Administration"** dropdown. When clicked, it fetches and displays a list of current Faculty Members and Officers.
 - Hosts the **theme toggle** (`ThemeToggle`), alongside the notifications bell and the account menu (role badge + sign out), or Sign in for guests.

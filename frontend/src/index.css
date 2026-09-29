@@ -790,74 +790,228 @@ select option {
   min-width: 64px;
 }
 
-/* ── Timetable: the schedule drawn as rows (time) × columns (days) ──────── */
-.tt-wrap {
+/* ── Schedule: the weekly timetable (days across, time down) ───────────── */
+.sched-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.sched-controls .search-box {
+  margin-bottom: 0;
+  flex: 1;
+  min-width: 220px;
+}
+
+.sched-select {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.sched-wrap {
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
 }
 
-.timetable {
-  width: 100%;
-  min-width: 820px;
-  border-collapse: separate;
-  border-spacing: 6px;
+.sched-grid {
+  display: grid;
+  gap: 10px;
+  min-width: 940px; /* template columns are set inline */
 }
 
-.timetable th {
-  font-size: 0.78rem;
+.sched-day-head {
+  text-align: center;
+  font-size: 0.8rem;
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 1.4px;
   color: var(--text-muted);
-  text-align: left;
-  padding: 4px 8px;
-}
-
-.timetable .tt-slot {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--heading);
-  white-space: nowrap;
-  vertical-align: top;
-  padding-top: 12px;
-}
-
-.timetable td {
-  vertical-align: top;
-  min-width: 150px;
-  height: 92px;
-  padding: 8px;
+  padding: 8px 6px;
+  border-radius: 10px;
   background: var(--surface-alt);
   border: 1px solid var(--hairline);
-  border-radius: 10px;
 }
 
-.timetable td.empty {
-  background: transparent;
-  border-style: dashed;
-  border-color: var(--hairline);
-}
-
-.tt-class {
-  background: var(--surface);
-  border-left: 3px solid var(--accent-solid);
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 0.85rem;
-}
-
-.tt-class + .tt-class {
-  margin-top: 6px;
-}
-
-.tt-class strong {
-  color: var(--heading);
+.sched-day-head small {
   display: block;
+  font-size: 0.58rem;
+  letter-spacing: 1.6px;
+  margin-top: 2px;
+  opacity: 0.9;
 }
 
-.tt-class span {
-  color: var(--text-muted);
-  font-size: 0.78rem;
+.sched-day-head.is-today {
+  background: var(--grad-primary);
+  background-color: transparent;
+  border: none;
+  color: #ffffff;
+}
+
+.sched-gutter {
+  position: relative;
+}
+
+.sched-hour {
+  position: absolute;
+  right: 10px;
+  transform: translateY(-50%);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.sched-now-pill {
+  position: absolute;
+  right: 4px;
+  transform: translateY(-50%);
+  z-index: 4;
+  background: var(--danger);
+  color: #ffffff;
+  border-radius: 99px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  padding: 1px 7px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.sched-col {
+  position: relative;
+  border-radius: 12px;
+  background: var(--surface-alt);
+  border: 1px solid var(--hairline);
+}
+
+.sched-col.is-today {
+  border-color: var(--accent);
+}
+
+.sched-now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--danger);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.sched-now-line::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+}
+
+/* Class blocks: absolutely placed at their time slot, sharing the column
+   width when several classes overlap. */
+.tt-block {
+  position: absolute;
+  border-radius: 10px;
+  padding: 5px 7px;
+  overflow: hidden;
+  cursor: default;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.tt-block.is-editable {
+  cursor: pointer;
+}
+
+.tt-block.is-editable:hover {
+  transform: translateY(-1px);
+  z-index: 6;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28);
+}
+
+.tt-block.is-now {
+  box-shadow: 0 0 0 2px var(--danger), 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+.tt-subject {
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.tt-meta {
+  font-size: 0.66rem;
+  opacity: 0.92;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tt-chip {
+  display: inline-block;
+  max-width: 100%;
+  margin-top: 3px;
+  padding: 1px 6px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.24);
+  font-size: 0.6rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tt-now-chip {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: var(--danger);
+  color: #ffffff;
+  border-radius: 99px;
+  font-size: 0.56rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  padding: 1px 6px;
+  z-index: 2;
+}
+
+.tt-actions {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  display: none;
+  gap: 4px;
+  z-index: 2;
+}
+
+.tt-block:hover .tt-actions {
+  display: flex;
+}
+
+.tt-act {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #25010f;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Search boxes shared by the back-office filters */
