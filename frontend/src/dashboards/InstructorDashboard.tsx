@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
 import PinnedHero, { PinSummary } from "../components/PinnedHero";
 import { getSession, Session } from "../access";
@@ -58,7 +57,6 @@ export default function InstructorDashboard() {
 
   return (
     <div className="app-container">
-      <Drawer />
       <main className="main-content">
         <Navbar />
 

@@ -60,26 +60,37 @@ const adminCount = () => mockUsers.filter(u => u.role === "admin").length;
 
 const nextId = (rows) => Math.max(0, ...rows.map(r => r.id)) + 1;
 
-// One pin at a time: pinning a row clears it everywhere else, which keeps the
-// dashboard hero unambiguous.
-const pinExclusive = (rows, id) => rows.forEach(r => { r.pinned = r.id === id; });
-
+// Pins are independent now: as many announcements and events as the admin
+// wants can be pinned at the same time, and the dashboard hero stacks them
+// all. (The old rule cleared every other row when one was pinned - that limit
+// is gone, because sometimes more than one thing needs to be pinned.)
 const pinnedAnnouncement = () => mockAnnouncements.find(a => a.pinned) || null;
-const pinnedEvent = () => mockEvents.find(e => e.pinned) || null;
 
-// The dashboard hero prefers an announcement, then a pinned event, and falls
-// back to the plain welcome hero when nothing is pinned.
-const pinForSummary = () => {
-  const announcement = pinnedAnnouncement();
-  if (announcement) {
-    return { type: "announcement", id: announcement.id, title: announcement.title, body: announcement.body, date: announcement.date, category: announcement.category };
-  }
-  const event = pinnedEvent();
-  if (event) {
-    return { type: "event", id: event.id, title: event.title, date: event.date, location: event.location };
-  }
-  return null;
-};
+// Announcements first, then pinned events - drafts stay off this list, exactly
+// like they stay off the public feed.
+const pinsForSummary = () => [
+  ...mockAnnouncements
+    .filter(a => a.pinned)
+    .map(a => ({
+      type: "announcement",
+      id: a.id,
+      title: a.title,
+      body: a.body,
+      date: a.date,
+      category: a.category
+    })),
+  ...mockEvents
+    .filter(e => e.pinned && e.status !== "draft")
+    .map(e => ({
+      type: "event",
+      id: e.id,
+      title: e.title,
+      date: e.date,
+      time: e.time,
+      endTime: e.endTime,
+      location: e.location
+    }))
+];
 
 // ─── Auth Routes ──────────────────────────────────────────────────────────────
 app.post('/api/auth/login', (req, res) => {
@@ -157,7 +168,7 @@ app.get('/api/events/:id', (req, res) => {
 });
 
 app.post('/api/events', authenticate, requireRole('admin'), (req, res) => {
-  const { title, date, description, location, type, status, pinned } = req.body;
+  const { title, date, time, endTime, description, location, type, status, pinned } = req.body;
   if (!title || !date) return res.status(400).json({ message: "Title and date are required." });
   if (status && !STATUSES.includes(status)) {
     return res.status(400).json({ message: "Status must be draft, published or cancelled." });
@@ -166,14 +177,15 @@ app.post('/api/events', authenticate, requireRole('admin'), (req, res) => {
   const event = {
     id: nextId(mockEvents),
     title, date,
+    time: time || "",
+    endTime: endTime || "",
     description: description || "",
     location: location || "",
     type: type || "event",
     status: status || "published",
-    pinned: false
+    pinned: !!pinned
   };
   mockEvents.push(event);
-  if (pinned) pinExclusive(mockEvents, event.id);
   res.status(201).json({ event });
 });
 
@@ -181,7 +193,7 @@ app.put('/api/events/:id', authenticate, requireRole('admin'), (req, res) => {
   const index = mockEvents.findIndex(e => e.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ message: "Event not found" });
 
-  const { title, date, description, location, type, status, pinned } = req.body;
+  const { title, date, time, endTime, description, location, type, status, pinned } = req.body;
   if (status && !STATUSES.includes(status)) {
     return res.status(400).json({ message: "Status must be draft, published or cancelled." });
   }
@@ -189,13 +201,14 @@ app.put('/api/events/:id', authenticate, requireRole('admin'), (req, res) => {
     ...mockEvents[index],
     ...(title && { title }),
     ...(date && { date }),
+    ...(time !== undefined && { time }),
+    ...(endTime !== undefined && { endTime }),
     ...(description !== undefined && { description }),
     ...(location !== undefined && { location }),
     ...(type && { type }),
     ...(status && { status }),
     ...(pinned !== undefined && { pinned: !!pinned })
   };
-  if (pinned) pinExclusive(mockEvents, mockEvents[index].id);
   res.json({ event: mockEvents[index] });
 });
 

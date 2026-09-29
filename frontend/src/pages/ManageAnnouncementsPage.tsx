@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
 
 interface Announcement {
@@ -96,7 +95,6 @@ export default function ManageAnnouncementsPage() {
 
   return (
     <div className="app-container">
-      <Drawer />
       <main className="main-content">
         <Navbar />
         <div className="dashboard-body">

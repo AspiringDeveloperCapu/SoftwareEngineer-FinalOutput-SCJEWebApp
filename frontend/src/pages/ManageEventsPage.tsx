@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
 
 interface EventItem {
@@ -130,7 +129,6 @@ export default function ManageEventsPage() {
 
   return (
     <div className="app-container">
-      <Drawer />
       <main className="main-content">
         <Navbar />
         <div className="dashboard-body">

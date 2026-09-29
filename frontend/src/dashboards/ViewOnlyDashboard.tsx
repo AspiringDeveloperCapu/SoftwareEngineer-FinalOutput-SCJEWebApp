@@ -1,26 +1,63 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import LoginForm from "../components/LoginForm";
 import { getSession } from "../access";
+import { formatWhen, byWhen } from "../format";
 
 interface EventItem {
   id: number;
   title: string;
   date: string;
+  time?: string;
+  endTime?: string;
   description: string;
   location: string;
   type: string;
+  status: string;
+  pinned: boolean;
 }
 
+interface Announcement {
+  id: number;
+  title: string;
+  body: string;
+  author: string;
+  date: string;
+  category: string;
+  pinned: boolean;
+}
+
+type Filter = "latest" | "upcoming" | "finished";
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+const typeColors: Record<string, string> = {
+  seminar: "var(--brand)",
+  sports: "var(--gold)",
+  academic: "var(--accent-solid)",
+  social: "var(--success-solid)"
+};
+
+const categoryColors: Record<string, string> = {
+  academic: "var(--accent-solid)",
+  reminder: "var(--gold)",
+  event: "var(--success-solid)",
+  announcement: "var(--brand)"
+};
+
 /**
- * The landing page: the bottom of the hierarchy - events only, no statistics
- * and no sidebar - shown before anyone signs in, so the app has content on
- * first load. A signed-in account never sees it; it is bounced to its own
- * dashboard instead.
+ * The main dashboard and the landing page in one: it opens with the hero and
+ * the sign-in card, then everything else - announcements and the event feed -
+ * sits below it, scrollable, so a visitor can browse without an account.
+ * A signed-in session is bounced to its own dashboard instead.
  */
 export default function ViewOnlyDashboard() {
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [filter, setFilter] = useState<Filter>("latest");
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (getSession()) {
@@ -29,9 +66,50 @@ export default function ViewOnlyDashboard() {
     }
     fetch("http://localhost:4000/api/events")
       .then(res => res.json())
-      .then(data => setEvents(data))
+      .then(data => setEvents(Array.isArray(data) ? data : []))
+      .catch(err => console.error(err));
+    fetch("http://localhost:4000/api/announcements")
+      .then(res => res.json())
+      .then(data => setAnnouncements(Array.isArray(data) ? data : []))
       .catch(err => console.error(err));
   }, [navigate]);
+
+  // Arriving from the header's Sign In button (/​#signin) lands on the form.
+  useEffect(() => {
+    if (location.hash === "#signin") {
+      document.getElementById("signin")?.scrollIntoView({ block: "center" });
+    }
+  }, [location.hash]);
+
+  // Finished events stay on file, they just move behind their own filter.
+  const visible = events
+    .filter(e => {
+      if (filter === "upcoming") return e.date >= today();
+      if (filter === "finished") return e.date < today();
+      return true;
+    })
+    .sort((a, b) => {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+      if (filter === "finished") return byWhen(b, a);
+      return byWhen(a, b);
+    });
+
+  const chips: { key: Filter; label: string }[] = [
+    { key: "latest", label: "Latest" },
+    { key: "upcoming", label: "Upcoming" },
+    { key: "finished", label: "Finished" }
+  ];
+
+  const chipStyle = (active: boolean): React.CSSProperties => ({
+    padding: "8px 16px",
+    borderRadius: "99px",
+    border: active ? "none" : "1px solid var(--border-strong)",
+    backgroundColor: active ? "var(--grad-primary)" : "var(--surface)",
+    color: active ? "var(--on-primary)" : "var(--text)",
+    fontWeight: 600,
+    fontSize: "0.85rem",
+    cursor: "pointer"
+  });
 
   return (
     <div className="app-container">
@@ -39,47 +117,190 @@ export default function ViewOnlyDashboard() {
         <Navbar />
 
         <div className="dashboard-body">
-          <section className="hero" style={{ position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: "16px", right: "16px", backgroundColor: "var(--surface-2)", color: "var(--text)", padding: "4px 12px", borderRadius: "99px", fontSize: "0.8rem", fontWeight: "bold" }}>
-              👁 View Only
-            </div>
-            <h1 style={{ fontSize: "1.5rem" }}>SCJE Events</h1>
-            <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: "8px" }}>
-              Announcements and upcoming events — everything else requires an account.
-            </p>
-            <div style={{ display: "flex", gap: "12px", marginTop: "16px", flexWrap: "wrap" }}>
-              <button className="login-btn" onClick={() => navigate("/login")} style={{ padding: "10px 20px" }}>
-                Sign in →
-              </button>
-              <button
-                onClick={() => navigate("/events")}
-                style={{ padding: "10px 20px", borderRadius: "12px", border: "1px solid var(--border-strong)", backgroundColor: "var(--surface)", color: "var(--text)", cursor: "pointer", fontWeight: 700 }}
-              >
-                Browse all events
-              </button>
+          {/* Hero + inline sign-in, side by side on wide screens */}
+          <section className="hero" style={{ overflow: "hidden" }}>
+            <div className="hero-grid">
+              <div style={{ position: "relative" }}>
+                <span style={{
+                  position: "absolute", top: "-6px", right: "0",
+                  backgroundColor: "var(--surface-2)", color: "var(--text)",
+                  padding: "4px 12px", borderRadius: "99px", fontSize: "0.8rem", fontWeight: "bold"
+                }}>
+                  👁 View Only
+                </span>
+
+                <h1 style={{ fontSize: "1.6rem", marginTop: "8px" }}>SCJE Events</h1>
+                <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: "8px", lineHeight: 1.6 }}>
+                  Announcements and upcoming events from the MIS Office — everything below is open to browse.
+                  Sign in to reach your classes, grades and records.
+                </p>
+
+                <div style={{ display: "flex", gap: "12px", marginTop: "16px", flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => document.getElementById("signin")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+                    className="login-btn"
+                    style={{ padding: "10px 20px" }}
+                  >
+                    Sign in →
+                  </button>
+                  <button
+                    onClick={() => navigate("/events")}
+                    style={{ padding: "10px 20px", borderRadius: "12px", border: "1px solid var(--border-strong)", backgroundColor: "var(--surface)", color: "var(--text)", cursor: "pointer", fontWeight: 700 }}
+                  >
+                    Browse all events
+                  </button>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "12px", marginTop: "20px" }}>
+                  <div style={{ padding: "12px", borderRadius: "12px", background: "var(--surface-alt)", border: "1px solid var(--hairline)", textAlign: "center" }}>
+                    <strong style={{ color: "var(--heading)", fontSize: "1.3rem", display: "block" }}>{events.length}</strong>
+                    <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>Events on file</span>
+                  </div>
+                  <div style={{ padding: "12px", borderRadius: "12px", background: "var(--surface-alt)", border: "1px solid var(--hairline)", textAlign: "center" }}>
+                    <strong style={{ color: "var(--accent)", fontSize: "1.3rem", display: "block" }}>{announcements.length}</strong>
+                    <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>Announcements</span>
+                  </div>
+                  <div style={{ padding: "12px", borderRadius: "12px", background: "var(--surface-alt)", border: "1px solid var(--hairline)", textAlign: "center" }}>
+                    <strong style={{ color: "var(--gold)", fontSize: "1.3rem", display: "block" }}>
+                      {events.filter(e => e.date >= today()).length}
+                    </strong>
+                    <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>Upcoming</span>
+                  </div>
+                </div>
+              </div>
+
+              <LoginForm />
             </div>
           </section>
 
-          <section className="card">
-            <h3>Upcoming & Recent Events</h3>
-            {events.length > 0 ? (
-              <ul style={{ listStyle: "none", padding: 0, marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
-                {events.map(evt => (
-                  <li key={evt.id} style={{ padding: "16px", backgroundColor: "var(--surface-alt)", borderRadius: "8px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
-                      <strong style={{ color: "var(--heading)" }}>{evt.title}</strong>
-                      <span style={{ color: "var(--text-faint)", fontSize: "0.85rem", whiteSpace: "nowrap" }}>{evt.date}</span>
-                    </div>
-                    <p style={{ fontSize: "0.9rem", color: "var(--text-muted)", margin: "6px 0 0 0" }}>{evt.description}</p>
-                    <p style={{ fontSize: "0.8rem", color: "var(--text-faint)", margin: "6px 0 0 0" }}>
-                      📍 {evt.location} · {evt.type}
-                    </p>
-                  </li>
-                ))}
-              </ul>
+          {/* Announcements */}
+          <section id="announcements" style={{ marginBottom: "32px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "12px", marginBottom: "16px" }}>
+              <h3 style={{ color: "var(--heading)", margin: 0 }}>Announcements</h3>
+              <span style={{ color: "var(--text-faint)", fontSize: "0.85rem" }}>{announcements.length} posted</span>
+            </div>
+
+            {announcements.length > 0 ? (
+              <div className="content-grid">
+                {[...announcements]
+                  .sort((a, b) => Number(b.pinned) - Number(a.pinned))
+                  .map(a => (
+                    <section key={a.id} className="card" style={a.pinned ? { border: "2px solid var(--gold)" } : undefined}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", gap: "8px", flexWrap: "wrap" }}>
+                        <span style={{
+                          backgroundColor: categoryColors[a.category] || "var(--brand)",
+                          color: "white", padding: "2px 12px", borderRadius: "99px",
+                          fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase"
+                        }}>
+                          {a.category}
+                        </span>
+                        {a.pinned && (
+                          <span style={{
+                            backgroundColor: "var(--gold)", color: "var(--on-gold)",
+                            padding: "2px 12px", borderRadius: "99px", fontSize: "0.75rem", fontWeight: 700
+                          }}>
+                            📌 PINNED
+                          </span>
+                        )}
+                      </div>
+                      <h3 style={{ marginBottom: "8px" }}>{a.title}</h3>
+                      <p style={{ color: "var(--text-muted)", lineHeight: "1.5", fontSize: "0.9rem" }}>{a.body}</p>
+                      <p style={{ color: "var(--text-faint)", fontSize: "0.78rem", marginTop: "8px" }}>{a.date} · {a.author}</p>
+                    </section>
+                  ))}
+              </div>
             ) : (
-              <p style={{ color: "var(--text-muted)", marginTop: "12px" }}>No events posted.</p>
+              <div className="card">
+                <p style={{ color: "var(--text-muted)" }}>No announcements posted yet.</p>
+              </div>
             )}
+          </section>
+
+          {/* Events */}
+          <section id="events">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap", marginBottom: "16px" }}>
+              <h3 style={{ color: "var(--heading)", margin: 0 }}>Events</h3>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                {chips.map(c => (
+                  <button key={c.key} onClick={() => setFilter(c.key)} style={chipStyle(filter === c.key)}>
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="content-grid">
+              {visible.length > 0 ? (
+                visible.map(evt => {
+                  const finished = evt.date < today();
+                  const when = formatWhen(evt.date, evt.time, evt.endTime);
+                  return (
+                    <section
+                      key={evt.id}
+                      className="card"
+                      style={{
+                        cursor: "pointer",
+                        border: evt.pinned ? "2px solid var(--gold)" : undefined,
+                        opacity: finished ? 0.88 : 1
+                      }}
+                      onClick={() => navigate(`/events/${evt.id}`)}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", gap: "8px", flexWrap: "wrap" }}>
+                        <span style={{
+                          backgroundColor: typeColors[evt.type] || "var(--brand)",
+                          color: "white", padding: "2px 12px", borderRadius: "99px",
+                          fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase"
+                        }}>
+                          {evt.type}
+                        </span>
+                        <span style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                          {evt.pinned && (
+                            <span style={{ backgroundColor: "var(--gold)", color: "var(--on-gold)", padding: "2px 10px", borderRadius: "99px", fontSize: "0.7rem", fontWeight: 700 }}>
+                              📌 PINNED
+                            </span>
+                          )}
+                          {evt.status === "cancelled" && (
+                            <span style={{ backgroundColor: "var(--danger)", color: "white", padding: "2px 10px", borderRadius: "99px", fontSize: "0.7rem", fontWeight: 700 }}>
+                              CANCELLED
+                            </span>
+                          )}
+                          {finished && (
+                            <span style={{ backgroundColor: "var(--surface-2)", color: "var(--text-muted)", padding: "2px 10px", borderRadius: "99px", fontSize: "0.7rem", fontWeight: 700 }}>
+                              FINISHED
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <h3 style={{ marginBottom: "8px" }}>{evt.title}</h3>
+                      <p style={{ color: "var(--text-muted)", lineHeight: "1.5", fontSize: "0.9rem" }}>
+                        {evt.description.substring(0, 110)}…
+                      </p>
+                      <p style={{ color: "var(--heading)", fontSize: "0.82rem", marginTop: "10px" }}>
+                        📅 {when}
+                      </p>
+                      <p style={{ color: "var(--text-faint)", fontSize: "0.8rem", marginTop: "4px" }}>
+                        📍 {evt.location} · {evt.type}
+                      </p>
+                    </section>
+                  );
+                })
+              ) : (
+                <div className="card" style={{ gridColumn: "1 / -1" }}>
+                  <p style={{ color: "var(--text-muted)" }}>
+                    No {filter === "upcoming" ? "upcoming" : "finished"} events yet — finished ones stay on file under Finished.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+              <button
+                onClick={() => navigate("/events")}
+                style={{ padding: "10px 22px", borderRadius: "12px", border: "1px solid var(--border-strong)", backgroundColor: "var(--surface)", color: "var(--heading)", cursor: "pointer", fontWeight: 700 }}
+              >
+                Browse all events →
+              </button>
+            </div>
           </section>
         </div>
       </main>

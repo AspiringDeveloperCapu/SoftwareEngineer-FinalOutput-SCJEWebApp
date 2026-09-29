@@ -1,6 +1,5 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
 import EventDetailPage from "./pages/EventDetailPage";
@@ -22,10 +21,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public: the view-only dashboard is the landing page, so a visitor
-            sees content before signing in. Sign-in lives at /login. */}
+        {/* Public: the view-only dashboard is the landing page AND the main
+            dashboard - it carries the sign-in form, so events, announcements
+            and login all live on one scrollable screen. /login stays as a
+            fallback redirect so old links and bookmarks keep working. */}
         <Route path="/" element={<ViewOnlyDashboard />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetailPage />} />
         <Route path="/view-only" element={<ViewOnlyDashboard />} />

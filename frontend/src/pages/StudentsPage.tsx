@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Drawer, { ROLE_STYLE } from "../components/Drawer";
+import { ROLE_STYLE } from "../components/RoleBadge";
 import Navbar from "../components/Navbar";
 
 interface Account {
@@ -285,7 +285,6 @@ export default function StudentsPage() {
 
   return (
     <div className="app-container">
-      <Drawer />
       <main className="main-content">
         <Navbar />
         <div className="dashboard-body">

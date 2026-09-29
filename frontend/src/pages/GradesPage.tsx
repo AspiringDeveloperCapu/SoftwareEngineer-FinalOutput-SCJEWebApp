@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
 import { getSession } from "../access";
 
@@ -63,7 +62,6 @@ export default function GradesPage() {
 
   return (
     <div className="app-container">
-      <Drawer />
       <main className="main-content">
         <Navbar />
         <div className="dashboard-body">

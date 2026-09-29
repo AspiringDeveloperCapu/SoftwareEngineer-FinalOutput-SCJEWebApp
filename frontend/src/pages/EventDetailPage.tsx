@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
-import { getSession } from "../access";
 
 interface EventDetail {
   id: number;
@@ -34,11 +32,10 @@ export default function EventDetailPage() {
     social: "var(--success-solid)"
   };
 
-  if (!event) return <div className="app-container">{getSession() && <Drawer />}<main className="main-content"><Navbar /><div className="dashboard-body"><p>Loading...</p></div></main></div>;
+  if (!event) return <div className="app-container"><main className="main-content"><Navbar /><div className="dashboard-body"><p>Loading...</p></div></main></div>;
 
   return (
     <div className="app-container">
-      {getSession() && <Drawer />}
       <main className="main-content">
         <Navbar />
         <div className="dashboard-body">

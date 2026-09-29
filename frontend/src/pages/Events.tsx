@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
-import { getSession } from "../access";
 
 interface EventItem {
   id: number;
@@ -92,8 +90,6 @@ export default function Events() {
 
   return (
     <div className="app-container">
-      {/* A visitor (view-only) browses with no sidebar; the drawer belongs to a session */}
-      {getSession() && <Drawer />}
       <main className="main-content">
         <Navbar />
 

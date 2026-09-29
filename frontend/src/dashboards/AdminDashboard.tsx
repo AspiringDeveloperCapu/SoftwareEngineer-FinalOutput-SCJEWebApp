@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
 import PinnedHero, { PinSummary } from "../components/PinnedHero";
 import { getSession, Session } from "../access";
@@ -63,7 +62,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="app-container">
-      <Drawer />
       <main className="main-content">
         <Navbar />
 

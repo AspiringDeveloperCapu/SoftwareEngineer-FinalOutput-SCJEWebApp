@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
 
 interface FacultyMember {
@@ -27,7 +26,6 @@ export default function FacultyPage() {
 
   return (
     <div className="app-container">
-      <Drawer />
       <main className="main-content">
         <Navbar />
         <div className="dashboard-body">

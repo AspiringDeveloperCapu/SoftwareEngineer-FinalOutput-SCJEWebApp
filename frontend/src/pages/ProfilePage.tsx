@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Drawer from "../components/Drawer";
 import Navbar from "../components/Navbar";
 
 export default function ProfilePage() {
@@ -63,7 +62,6 @@ export default function ProfilePage() {
 
   return (
     <div className="app-container">
-      <Drawer />
       <main className="main-content">
         <Navbar />
         <div className="dashboard-body">
