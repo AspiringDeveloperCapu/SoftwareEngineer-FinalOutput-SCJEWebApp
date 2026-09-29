@@ -4,7 +4,7 @@
 This project is a migration of the **SCJE/BSISM Student System** from a planned Flutter mobile application to a modern, fully-featured web application.
 
 ## 2. Technology Stack
-- **Frontend**: React, TypeScript, Vite, React Router. (Styled closely to the original Flutter app's Material 3 theme).
+- **Frontend**: React, TypeScript, Vite, React Router. Carries over the Flutter app's Material 3 structure (Navy, Crimson, Gold accents) under a purple-red gradient identity with frosted-glass cards.
 - **PWA**: `vite-plugin-pwa` (Workbox `generateSW`) for the manifest, app-shell precache and offline data cache.
 - **Backend**: Node.js, Express, jsonwebtoken (JWT).
 - **Database**: Mock JSON (representing MIS Office data) designed to be easily swappable to PostgreSQL or MySQL in the future.
@@ -15,11 +15,11 @@ A strict hierarchy, highest to lowest:
 1. **Admin** — one shared account for the MIS office, not a personal one.
 2. **Instructor**
 3. **Student**
-4. **View-only** — a restricted session with events only; no demo account signs in as view-only.
+4. **View-only** — the guest landing at `/`, events only, no account; no demo account signs in as view-only.
 
 ### The capability table
 `frontend/src/access.ts` is the single authority: it maps every role to its
-dashboard and sidebar links, and `components/Protected.tsx` uses the same roles
+dashboard and header navigation links, and `components/Protected.tsx` uses the same roles
 to gate routes. Nothing else in the app hard-codes a role check.
 
 | Capability | view-only | student | instructor | admin |
@@ -42,15 +42,18 @@ delete: its grades and schedule rows go with it. Role changes are stored in the
 JWT, so they take effect on the account's next sign-in.
 
 **Event model.** Every event carries `status` (`draft` | `published` |
-`cancelled`) and a `pinned` flag. Drafts are invisible outside `/manage-events`
-(the public feed and `GET /api/events/:id` treat them as missing). One event at
-a time can be pinned — pinning one clears the rest — and the public feed offers
+`cancelled`), a `pinned` flag and start/end `time` fields (shown as a 📅 line on
+the feed, the detail page and the manage table). Drafts are invisible outside
+`/manage-events` (the public feed and `GET /api/events/:id` treat them as
+missing). Any number of events can stay pinned — the pinned set is what the
+dashboard hero stacks — and the public feed offers
 **Latest / Upcoming / Finished** filters; finished events are never deleted,
 they simply move behind the Finished filter as records.
 
 **Announcements.** Admin-authored, visible to everyone on the Events page. The
-single pinned announcement (or, if none, the pinned event) is served on the
-dashboard summary as `pin`, which `PinnedHero` renders on all three dashboards.
+pinned announcements (plus pinned events, announcements first) are served on the
+dashboard summary as `pins[]`, which `PinnedHero` stacks on all three dashboards
+with a `📌 N Pinned` badge.
 
 **Department logic** still applies inside the hierarchy: an instructor's grades
 and schedule are scoped to their department (`SCJE` / `ISM`), and the classes
@@ -67,12 +70,14 @@ view-only landing rather than on a full dashboard.
 
 ### Landing & Sign-In
 The root route (`/`) is the **view-only dashboard** — the bottom of the
-hierarchy, so a visitor sees real content (event feed, Sign in button) with no
-account. The login form lives at `/login`; a signed-in session that opens `/`
-or `/view-only` is bounced to `/dashboard` (its own dashboard).
+hierarchy, so a visitor sees real content (event feed, hero, stats) with no
+account, with the **login form inline in the page** (`#signin`; the navbar's
+Sign In button jumps to it and focuses the email field). `/login` redirects to
+`/`, `/view-only` is an alias, and a signed-in session that opens `/`
+is bounced to its own dashboard.
 
 ### Authentication & First-Time Registration Flow
-1. User opens `/login` and enters Email and Password.
+1. User submits the Email and Password form on the landing page (`#signin`).
 2. The system checks the database (MIS data).
 3. **First-Time Login**: If the user is logging in for the first time, they are intercepted and forced to register their profile. The required fields are:
    - Picture
@@ -84,22 +89,26 @@ or `/view-only` is bounced to `/dashboard` (its own dashboard).
 
 ## 5. UI Architecture
 
-### Drawer (Sidebar)
-The drawer reads the session and renders from `linksFor(role)` — it never
+### Header Navigation (the sidebar was retired)
+There is no drawer/sidebar anywhere — `components/Drawer.tsx` was deleted. The
+header `Navbar` reads the session and renders from `linksFor(role)` — it never
 hard-codes who sees what. It includes:
-- **User Info**: Picture, Name, a **role badge** (gold `ADMIN`, crimson
-  `INSTRUCTOR`, white `STUDENT`) and Course/Department.
-- **Menu Items**: students and instructors get Dashboard, Instructors, Schedule,
-  Grades, Events; the admin tier adds Accounts, Announcements, Manage Events and
-  Manage Faculty. The drawer is session-only: a view-only visitor never sees a
-  sidebar (the landing and the public event pages are full-width, with the
-  navbar's home link and Sign In as their navigation).
+- **Left**: brand mark (home link).
+- **Centre**: menu items — students and instructors get Dashboard, Instructors,
+  Schedule, Grades, Events; the admin tier adds Accounts, Announcements, Manage
+  Events and Manage Faculty. Below 1100px they collapse into a burger sheet.
+- **Right**: Administration (faculty & officers, open to every visitor),
+  theme toggle, notifications, Sign in (guest) or an account menu with the
+  **role badge** (uppercase STUDENT / INSTRUCTOR / ADMINISTRATOR) and sign out.
+- The landing and public event pages are full-width with the navbar's home
+  link and Sign In as their navigation — a view-only visitor never sees a menu.
 
 ### Main Dashboard Body
 One route (`/dashboard`), four screens — `pages/Dashboard.tsx` is a dispatcher
 that picks by role. All three full-access dashboards share `PinnedHero`, which
-greets the user and, when the admin has pinned something, shows that pin
-(announcement first, else the pinned event) and links to the feed:
+greets the user and stacks **every** pinned announcement/event (announcements
+first, `📌 N Pinned` badge when there is more than one), each row linking to the
+feed:
 - **Student** (`dashboards/StudentDashboard.tsx`): hero, enrolled
   subjects / GPA / notifications, upcoming classes, recent events.
 - **Instructor** (`InstructorDashboard.tsx`): classes handled, subjects, students
@@ -108,8 +117,9 @@ greets the user and, when the admin has pinned something, shows that pin
   back-office shortcuts (Accounts, Announcements, Manage Events, Manage
   Faculty), a faculty snapshot and recent events.
 - **View-only** (`ViewOnlyDashboard.tsx`, `/` — also aliased at `/view-only`):
-  hero plus the full event list and Sign in / Browse all events buttons — no
-  statistics, no sidebar. It is the landing page, so it never asks for a
+  hero, glass stat tiles, the full event list with filter chips, the inline
+  sign-in form and Sign in / Browse all events buttons — no statistics, no
+  sidebar. It is the landing page, so it never asks for a
   session; a signed-in visitor opening it is sent to `/dashboard`.
 
 ### Back office screens
@@ -118,21 +128,31 @@ greets the user and, when the admin has pinned something, shows that pin
   edit fields (including role assignment), delete, plus inline add/edit/delete for
   grade rows and schedule rows.
 - **Manage Announcements** (`/manage-announcements`): publish, edit, delete and
-  pin (single-pin enforced by the API).
+  pin (multi-pin: any number can stay pinned, enforced by the API).
 - **Manage Events** (`/manage-events`): full list including drafts, status
-  select (draft/published/cancelled), status filter chips, pin star per row.
+  select (draft/published/cancelled), start/end time inputs, status filter
+  chips, pin star per row (multi-pin).
 - **Manage Faculty** (`/manage-faculty`): instructor/staff directory CRUD.
 
 ### Navigation Bar
 - Features the **"Administration"** dropdown. When clicked, it fetches and displays a list of current Faculty Members and Officers.
-- Hosts the **theme toggle** (`ThemeToggle`), alongside the notifications bell and logout.
+- Hosts the **theme toggle** (`ThemeToggle`), alongside the notifications bell and the account menu (role badge + sign out), or Sign in for guests.
 
-### Theming (Light / Dark)
+### Theming (Light / Dark + Gradient / Glass)
 - `index.css` defines **one palette** as CSS custom properties: `:root` holds the
   light values, `[data-theme="dark"]` on `<html>` overrides them. Components only
-  ever reference a token by role (`--text`, `--heading`, `--surface`, `--card`,
-  `--brand`, `--gold`, `--on-gold`, …), never a raw hex — which is why one
-  attribute flip re-skins every screen, including inline styles on JSX.
+  ever reference a token by role (`--text`, `--heading`, `--surface`, `--brand`,
+  `--gold`, `--grad-primary`, `--card-glass`, …), never a raw hex — which is why
+  one attribute flip re-skins every screen, including inline styles on JSX.
+- **The identity is a purple-red gradient**: `--grad-primary` (dark
+  `#FF3D6E → #8A3FFC`, light `#E11D48 → #7C3AED` so white labels stay legible)
+  drives pills, active nav and primary buttons; `--bg-image` paints the page
+  wash (dark: red/purple radials over a `#1C0716 → #33081D` gradient; light: a
+  soft lilac/blush wash).
+- **Text cards are frosted glass**: `.card`, `.hero` and the pinned rows use
+  `--card-glass` + `backdrop-filter: var(--blur-card)` with a hairline glass
+  border, so the gradient shows through (white glass in light, dark violet
+  frost in dark). Inputs and the navbar keep their own `--glass` tokens.
 - `theme.ts` reads the stored choice, falls back to `prefers-color-scheme`, and
   `main.tsx` applies it **before React renders**, so there is no light flash on
   first paint. `setTheme()` writes both `localStorage` and the attribute.
@@ -145,7 +165,7 @@ greets the user and, when the admin has pinned something, shows that pin
 The frontend is an installable progressive web app that keeps working without a
 connection once it has been opened online.
 
-- **Manifest** (`frontend/vite.config.ts`): name *SCJE Student Hub*, `#0B3D63`
+- **Manifest** (`frontend/vite.config.ts`): name *SCJE Student Hub*, `#380711`
   theme/background, `standalone` display, and the same four icons the Flutter
   build ships (`frontend/public/icons/`, including the maskable pair).
   `index.html` carries a matching `theme-color`, so the installed window chrome
