@@ -361,7 +361,7 @@ export default function StudentsPage() {
                       >
                         <option value="">{accountForm.role !== "student" ? "— staff —" : "Select a program"}</option>
                         <option value="BS Criminology">BS Criminology</option>
-                        <option value="BS Information Systems">BS Information Systems</option>
+                        <option value="BS Industrial Security Management">BS Industrial Security Management</option>
                       </select>
                     </label>
                     <label style={label}>
@@ -587,7 +587,7 @@ export default function StudentsPage() {
                       >
                         <option value="">{accountForm.role !== "student" ? "— staff —" : "Select a program"}</option>
                         <option value="BS Criminology">BS Criminology</option>
-                        <option value="BS Information Systems">BS Information Systems</option>
+                        <option value="BS Industrial Security Management">BS Industrial Security Management</option>
                       </select>
                     </label>
                     <label style={label}>

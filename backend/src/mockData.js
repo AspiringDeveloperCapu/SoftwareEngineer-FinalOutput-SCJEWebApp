@@ -20,7 +20,7 @@ const mockUsers = [
     password: "password123",
     name: "Maria Santos",
     department: "ISM",
-    course: "BS Information Systems",
+    course: "BS Industrial Security Management",
     section: "2B",
     year: "2",
     role: "student",
@@ -63,13 +63,13 @@ const mockUsers = [
 
 const generatedStudents = [
   { id: 101, name: "Kevin Ramos", course: "BS Criminology", section: "2-B", year: "2", gender: "Male", birthday: "2003-04-11" },
-  { id: 102, name: "Angela Villanueva", course: "BS Information Systems", section: "4-A", year: "4", gender: "Female", birthday: "2001-09-02" },
+  { id: 102, name: "Angela Villanueva", course: "BS Industrial Security Management", section: "4-A", year: "4", gender: "Female", birthday: "2001-09-02" },
   { id: 103, name: "Jose Lim", course: "BS Criminology", section: "1-A", year: "1", gender: "Male", birthday: "2004-12-19" },
-  { id: 104, name: "Katrina Dela PeÃ±a", course: "BS Information Systems", section: "3-B", year: "3", gender: "Female", birthday: "2002-07-30" },
+  { id: 104, name: "Katrina Dela PeÃ±a", course: "BS Industrial Security Management", section: "3-B", year: "3", gender: "Female", birthday: "2002-07-30" },
   { id: 105, name: "Miguel Torres", course: "BS Criminology", section: "3-A", year: "3", gender: "Male", birthday: "2002-02-08" },
-  { id: 106, name: "Angelica Cruz", course: "BS Information Systems", section: "1-B", year: "1", gender: "Female", birthday: "2004-05-23" },
+  { id: 106, name: "Angelica Cruz", course: "BS Industrial Security Management", section: "1-B", year: "1", gender: "Female", birthday: "2004-05-23" },
   { id: 107, name: "Brian Hernandez", course: "BS Criminology", section: "2-A", year: "2", gender: "Male", birthday: "2003-11-05" },
-  { id: 108, name: "Patricia Mendoza", course: "BS Information Systems", section: "2-C", year: "2", gender: "Female", birthday: "2003-08-14" }
+  { id: 108, name: "Patricia Mendoza", course: "BS Industrial Security Management", section: "2-C", year: "2", gender: "Female", birthday: "2003-08-14" }
 ];
 
 // Every rostered student is a real account, so the admin's Accounts page and

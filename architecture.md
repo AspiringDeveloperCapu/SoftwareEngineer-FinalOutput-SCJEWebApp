@@ -1,7 +1,7 @@
 # Architecture Overview for SCJE Web Application
 
 ## 1. Project Background
-This project is a migration of the **SCJE/BSISM Student System** from a planned Flutter mobile application to a modern, fully-featured web application.
+This project is a migration of the **SCJE/BSISM Student System** (BSISM — Bachelor of Science in Industrial Security Management) from a planned Flutter mobile application to a modern, fully-featured web application.
 
 ## 2. Technology Stack
 - **Frontend**: React, TypeScript, Vite, React Router. Carries over the Flutter app's Material 3 structure (Navy, Crimson, Gold accents) under a purple-red gradient identity with frosted-glass cards.

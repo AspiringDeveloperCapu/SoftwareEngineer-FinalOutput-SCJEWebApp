@@ -12,7 +12,7 @@ export default defineConfig({
         name: 'SCJE Student Hub',
         short_name: 'SCJE Hub',
         description:
-          'Events, announcements and academic information for BSCRIM and BSISM students.',
+          'Events, announcements and academic information for BSCRIM and BSISM (Industrial Security Management) students.',
         start_url: '/',
         scope: '/',
         display: 'standalone',

@@ -1,6 +1,6 @@
 # SCJE / BSISM Student System (Web App)
 
-This repository contains the web-based version of the SCJE/BSISM Student System, migrated from the original Flutter application design. It serves Admin/Staff, Instructors, and Students.
+This repository contains the web-based version of the SCJE/BSISM Student System (BSISM — Bachelor of Science in Industrial Security Management, a four-year Philippine degree focused on asset protection, risk reduction, and safety operations), migrated from the original Flutter application design. It serves Admin/Staff, Instructors, and Students.
 
 ## Features & Implementation
 
