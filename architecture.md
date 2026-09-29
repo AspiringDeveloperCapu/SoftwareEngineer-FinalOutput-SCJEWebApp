@@ -43,19 +43,25 @@ JWT, so they take effect on the account's next sign-in.
 
 **Event model.** Every event carries `status` (`draft` | `published` |
 `cancelled`), a `pinned` flag and start/end `time` fields (shown as a 📅 line on
-the feed, the detail page and the manage table). Drafts are invisible outside
+the feed, the detail page and the manage table), plus an optional `image` —
+either a picture uploaded from the manage form (stored as a data URL, downscaled
+to 1400px first) or a pasted http(s) link. The API only accepts those two forms
+(`400` otherwise), and items without one render the branded **placeholder tile**
+(`components/ItemImage.tsx`) everywhere: feed cards, the event detail banner,
+dashboard pins and the manage lists. Drafts are invisible outside
 `/manage-events` (the public feed and `GET /api/events/:id` treat them as
 missing). Any number of events can stay pinned — the pinned set is what the
-dashboard hero stacks — and the public feed offers
+dashboard intro band stacks — and the public feed offers
 **Latest / Upcoming / Finished** filters; finished events are never deleted,
 they simply move behind the Finished filter as records.
 
 **Announcements.** Admin-authored, visible to everyone on the Events page, with
 optional start/end `time` fields (shown as a 🕐 range on the feed, the manage
-list and the hero pin). The
+list and the hero pin) and the same optional `image` as events (upload or link,
+placeholder tile when missing). The
 pinned announcements (plus pinned events, announcements first) are served on the
 dashboard summary as `pins[]`, which `PinnedHero` stacks on all three dashboards
-with a `📌 N Pinned` badge.
+with a `📌 N Pinned` badge — pins with a picture show it as a thumbnail.
 
 **Department logic** still applies inside the hierarchy: an instructor's grades
 and schedule are scoped to their department (`SCJE` / `ISM`), and the classes
@@ -107,19 +113,23 @@ hard-codes who sees what. It includes:
 
 ### Main Dashboard Body
 One route (`/dashboard`), four screens — `pages/Dashboard.tsx` is a dispatcher
-that picks by role. All three full-access dashboards share `PinnedHero`, which
-greets the user and stacks **every** pinned announcement/event (announcements
-first, `📌 N Pinned` badge when there is more than one), each row linking to the
-feed:
-- **Student** (`dashboards/StudentDashboard.tsx`): hero, enrolled
-  subjects / GPA / notifications, upcoming classes, recent events.
+that picks by role. All three full-access dashboards open with `PinnedHero` as
+an **introduction band**: an eyebrow (`SCJE Student Hub · Introduction`), the
+greeting, the role subtitle, a decorative gradient art panel, and beneath it
+**every** pinned announcement/event (announcements first, `📌 N Pinned` badge
+when there is more than one, picture thumbnails when pins have images), each row
+linking to the feed:
+- **Student** (`dashboards/StudentDashboard.tsx`): intro band, enrolled
+  subjects / GPA / notifications, upcoming classes, recent events (with
+  thumbnails when the events have pictures).
 - **Instructor** (`InstructorDashboard.tsx`): classes handled, subjects, students
   taught, then *My Classes* and recent events.
 - **Admin** (`AdminDashboard.tsx`): students / faculty / events counts, four
   back-office shortcuts (Accounts, Announcements, Manage Events, Manage
   Faculty), a faculty snapshot and recent events.
 - **View-only** (`ViewOnlyDashboard.tsx`, `/` — also aliased at `/view-only`):
-  hero, glass stat tiles, the full event list with filter chips, the inline
+  the same **introduction-style hero** (eyebrow, welcome copy, 🏫 art banner,
+  glass stat tiles), the full event list with filter chips, the inline
   sign-in form and Sign in / Browse all events buttons — no statistics, no
   sidebar. It is the landing page, so it never asks for a
   session; a signed-in visitor opening it is sent to `/dashboard`.
@@ -130,9 +140,11 @@ feed:
   edit fields (including role assignment), delete, plus inline add/edit/delete for
   grade rows and schedule rows.
 - **Manage Announcements** (`/manage-announcements`): publish, edit, delete and
-  pin (multi-pin: any number can stay pinned, enforced by the API).
+  pin (multi-pin: any number can stay pinned, enforced by the API); the form
+  attaches a picture by file upload or image link, with a live preview.
 - **Manage Events** (`/manage-events`): full list including drafts, status
-  select (draft/published/cancelled), start/end time inputs, status filter
+  select (draft/published/cancelled), start/end time inputs, picture attach
+  (upload or link, shown as a table thumbnail), status filter
   chips, pin star per row (multi-pin).
 - **Manage Faculty** (`/manage-faculty`): instructor/staff directory CRUD.
 

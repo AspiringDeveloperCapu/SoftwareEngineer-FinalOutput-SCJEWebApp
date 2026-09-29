@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import ItemImage from "../components/ItemImage";
 import { formatWhen } from "../format";
 
 interface EventItem {
@@ -14,6 +15,7 @@ interface EventItem {
   type: string;
   status: string;
   pinned: boolean;
+  image?: string;
 }
 
 interface Announcement {
@@ -26,6 +28,7 @@ interface Announcement {
   endTime?: string;
   category: string;
   pinned: boolean;
+  image?: string;
 }
 
 type Filter = "latest" | "upcoming" | "finished";
@@ -113,7 +116,8 @@ export default function Events() {
                       className="card"
                       style={a.pinned ? { border: "2px solid var(--gold)" } : undefined}
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", gap: "8px", flexWrap: "wrap" }}>
+                      <ItemImage src={a.image} alt={a.title} kind="announcement" height={140} />
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "12px 0", gap: "8px", flexWrap: "wrap" }}>
                         <span style={{
                           backgroundColor: categoryColors[a.category] || "var(--brand)",
                           color: "white", padding: "2px 12px", borderRadius: "99px",
@@ -169,7 +173,8 @@ export default function Events() {
                     onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)")}
                     onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "0 1px 2px rgba(0,0,0,0.02)")}
                   >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", gap: "8px", flexWrap: "wrap" }}>
+                    <ItemImage src={evt.image} alt={evt.title} kind="event" height={140} />
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "12px 0", gap: "8px", flexWrap: "wrap" }}>
                       <span style={{
                         backgroundColor: typeColors[evt.type] || "var(--brand)",
                         color: "white", padding: "2px 12px", borderRadius: "99px",

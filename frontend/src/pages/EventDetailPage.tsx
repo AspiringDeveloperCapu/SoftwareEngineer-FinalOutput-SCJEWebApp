@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import ItemImage from "../components/ItemImage";
 import { formatWhen } from "../format";
 
 interface EventDetail {
@@ -14,6 +15,7 @@ interface EventDetail {
   type: string;
   status: string;
   pinned: boolean;
+  image?: string;
 }
 
 export default function EventDetailPage() {
@@ -47,7 +49,8 @@ export default function EventDetailPage() {
           </button>
 
           <div className="card" style={{ padding: "32px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", gap: "12px", flexWrap: "wrap" }}>
+            <ItemImage src={event.image} alt={event.title} kind="event" height={260} className="media--detail" />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", margin: "24px 0", gap: "12px", flexWrap: "wrap" }}>
               <h1 style={{ color: "var(--text)", fontSize: "1.5rem", margin: 0, flex: 1 }}>{event.title}</h1>
               <span style={{ display: "flex", gap: "8px", flexShrink: 0, flexWrap: "wrap" }}>
                 {event.pinned && (

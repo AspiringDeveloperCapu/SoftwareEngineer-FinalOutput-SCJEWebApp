@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import LoginForm from "../components/LoginForm";
+import ItemImage from "../components/ItemImage";
 import { getSession } from "../access";
 import { formatWhen, byWhen } from "../format";
 
@@ -16,6 +17,7 @@ interface EventItem {
   type: string;
   status: string;
   pinned: boolean;
+  image?: string;
 }
 
 interface Announcement {
@@ -28,6 +30,7 @@ interface Announcement {
   endTime?: string;
   category: string;
   pinned: boolean;
+  image?: string;
 }
 
 type Filter = "latest" | "upcoming" | "finished";
@@ -131,10 +134,12 @@ export default function ViewOnlyDashboard() {
                   👁 View Only
                 </span>
 
-                <h1 style={{ fontSize: "1.6rem", marginTop: "8px" }}>SCJE Events</h1>
+                <span className="intro-eyebrow">SCJE Student Hub · Introduction</span>
+                <h1 style={{ fontSize: "1.7rem", marginTop: "4px" }}>Welcome to the SCJE Student Hub</h1>
                 <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: "8px", lineHeight: 1.6 }}>
-                  Announcements and upcoming events from the MIS Office — everything below is open to browse.
-                  Sign in to reach your classes, grades and records.
+                  One place for campus life at SCJE — events, announcements, grades and schedules for
+                  BSCRIM and BSISM students, instructors and staff. Everything below is open to browse;
+                  sign in to reach your classes, records and grades.
                 </p>
 
                 <div style={{ display: "flex", gap: "12px", marginTop: "16px", flexWrap: "wrap" }}>
@@ -151,6 +156,10 @@ export default function ViewOnlyDashboard() {
                   >
                     Browse all events
                   </button>
+                </div>
+
+                <div className="intro-art intro-art--banner" aria-hidden="true">
+                  <span>🏫</span>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "12px", marginTop: "20px" }}>
@@ -188,7 +197,8 @@ export default function ViewOnlyDashboard() {
                   .sort((a, b) => Number(b.pinned) - Number(a.pinned))
                   .map(a => (
                     <section key={a.id} className="card" style={a.pinned ? { border: "2px solid var(--gold)" } : undefined}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", gap: "8px", flexWrap: "wrap" }}>
+                      <ItemImage src={a.image} alt={a.title} kind="announcement" height={140} />
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "12px 0", gap: "8px", flexWrap: "wrap" }}>
                         <span style={{
                           backgroundColor: categoryColors[a.category] || "var(--brand)",
                           color: "white", padding: "2px 12px", borderRadius: "99px",
@@ -247,7 +257,8 @@ export default function ViewOnlyDashboard() {
                       }}
                       onClick={() => navigate(`/events/${evt.id}`)}
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", gap: "8px", flexWrap: "wrap" }}>
+                      <ItemImage src={evt.image} alt={evt.title} kind="event" height={140} />
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "12px 0", gap: "8px", flexWrap: "wrap" }}>
                         <span style={{
                           backgroundColor: typeColors[evt.type] || "var(--brand)",
                           color: "white", padding: "2px 12px", borderRadius: "99px",

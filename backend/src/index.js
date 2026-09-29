@@ -60,6 +60,21 @@ const adminCount = () => mockUsers.filter(u => u.role === "admin").length;
 
 const nextId = (rows) => Math.max(0, ...rows.map(r => r.id)) + 1;
 
+// Pictures come in two shapes: a data URL produced by the file picker in the
+// manage forms, or a plain http(s) link pasted into the URL field. The feed
+// only ever stores those two, so junk values never reach the dashboard. The
+// 2MB cap keeps the in-memory JSON light.
+const MAX_IMAGE_CHARS = 2 * 1024 * 1024;
+const imageError = (image) => {
+  if (image === undefined || image === null || image === "") return null;
+  if (typeof image !== "string" || image.length > MAX_IMAGE_CHARS) {
+    return "Image must be an uploaded picture or a link (max 2MB).";
+  }
+  if (image.startsWith("data:image/")) return null;
+  if (/^https?:\/\/\S+$/i.test(image)) return null;
+  return "Image must be an uploaded picture or a link.";
+};
+
 // Pins are independent now: as many announcements and events as the admin
 // wants can be pinned at the same time, and the dashboard hero stacks them
 // all. (The old rule cleared every other row when one was pinned - that limit
@@ -79,7 +94,8 @@ const pinsForSummary = () => [
       date: a.date,
       time: a.time,
       endTime: a.endTime,
-      category: a.category
+      category: a.category,
+      image: a.image || ""
     })),
   ...mockEvents
     .filter(e => e.pinned && e.status !== "draft")
@@ -90,7 +106,8 @@ const pinsForSummary = () => [
       date: e.date,
       time: e.time,
       endTime: e.endTime,
-      location: e.location
+      location: e.location,
+      image: e.image || ""
     }))
 ];
 
@@ -170,11 +187,13 @@ app.get('/api/events/:id', (req, res) => {
 });
 
 app.post('/api/events', authenticate, requireRole('admin'), (req, res) => {
-  const { title, date, time, endTime, description, location, type, status, pinned } = req.body;
+  const { title, date, time, endTime, description, location, type, status, pinned, image } = req.body;
   if (!title || !date) return res.status(400).json({ message: "Title and date are required." });
   if (status && !STATUSES.includes(status)) {
     return res.status(400).json({ message: "Status must be draft, published or cancelled." });
   }
+  const badImage = imageError(image);
+  if (badImage) return res.status(400).json({ message: badImage });
 
   const event = {
     id: nextId(mockEvents),
@@ -185,7 +204,8 @@ app.post('/api/events', authenticate, requireRole('admin'), (req, res) => {
     location: location || "",
     type: type || "event",
     status: status || "published",
-    pinned: !!pinned
+    pinned: !!pinned,
+    image: image || ""
   };
   mockEvents.push(event);
   res.status(201).json({ event });
@@ -195,10 +215,12 @@ app.put('/api/events/:id', authenticate, requireRole('admin'), (req, res) => {
   const index = mockEvents.findIndex(e => e.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ message: "Event not found" });
 
-  const { title, date, time, endTime, description, location, type, status, pinned } = req.body;
+  const { title, date, time, endTime, description, location, type, status, pinned, image } = req.body;
   if (status && !STATUSES.includes(status)) {
     return res.status(400).json({ message: "Status must be draft, published or cancelled." });
   }
+  const badImage = imageError(image);
+  if (badImage) return res.status(400).json({ message: badImage });
   mockEvents[index] = {
     ...mockEvents[index],
     ...(title && { title }),
@@ -209,7 +231,8 @@ app.put('/api/events/:id', authenticate, requireRole('admin'), (req, res) => {
     ...(location !== undefined && { location }),
     ...(type && { type }),
     ...(status && { status }),
-    ...(pinned !== undefined && { pinned: !!pinned })
+    ...(pinned !== undefined && { pinned: !!pinned }),
+    ...(image !== undefined && { image: image || "" })
   };
   res.json({ event: mockEvents[index] });
 });
@@ -234,8 +257,10 @@ app.get('/api/announcements/pinned', (req, res) => {
 });
 
 app.post('/api/announcements', authenticate, requireRole('admin'), (req, res) => {
-  const { title, body, category, pinned, time, endTime } = req.body;
+  const { title, body, category, pinned, time, endTime, image } = req.body;
   if (!title || !body) return res.status(400).json({ message: "Title and body are required." });
+  const badImage = imageError(image);
+  if (badImage) return res.status(400).json({ message: badImage });
 
   const announcement = {
     id: nextId(mockAnnouncements),
@@ -246,7 +271,8 @@ app.post('/api/announcements', authenticate, requireRole('admin'), (req, res) =>
     time: time || "",
     endTime: endTime || "",
     category: category || "announcement",
-    pinned: !!pinned
+    pinned: !!pinned,
+    image: image || ""
   };
   mockAnnouncements.push(announcement);
   res.status(201).json({ announcement });
@@ -256,7 +282,9 @@ app.put('/api/announcements/:id', authenticate, requireRole('admin'), (req, res)
   const index = mockAnnouncements.findIndex(a => a.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ message: "Announcement not found" });
 
-  const { title, body, category, pinned, time, endTime } = req.body;
+  const { title, body, category, pinned, time, endTime, image } = req.body;
+  const badImage = imageError(image);
+  if (badImage) return res.status(400).json({ message: badImage });
   mockAnnouncements[index] = {
     ...mockAnnouncements[index],
     ...(title && { title }),
@@ -264,7 +292,8 @@ app.put('/api/announcements/:id', authenticate, requireRole('admin'), (req, res)
     ...(category && { category }),
     ...(time !== undefined && { time }),
     ...(endTime !== undefined && { endTime }),
-    ...(pinned !== undefined && { pinned: !!pinned })
+    ...(pinned !== undefined && { pinned: !!pinned }),
+    ...(image !== undefined && { image: image || "" })
   };
   res.json({ announcement: mockAnnouncements[index] });
 });

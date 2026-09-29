@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import ItemImage from "../components/ItemImage";
+import { fileToImageSrc, isImageUrl } from "../image";
 import { formatWhen } from "../format";
 
 interface Announcement {
@@ -12,9 +14,10 @@ interface Announcement {
   endTime?: string;
   category: string;
   pinned: boolean;
+  image?: string;
 }
 
-const EMPTY = { title: "", body: "", category: "announcement", pinned: false, time: "", endTime: "" };
+const EMPTY = { title: "", body: "", category: "announcement", pinned: false, time: "", endTime: "", image: "" };
 
 const CATEGORIES = ["announcement", "academic", "reminder", "event"];
 
@@ -37,6 +40,8 @@ export default function ManageAnnouncementsPage() {
   const [form, setForm] = useState<typeof EMPTY & { id?: number }>(EMPTY);
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [urlInput, setUrlInput] = useState("");
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const load = () =>
     fetch("http://localhost:4000/api/announcements")
@@ -46,20 +51,54 @@ export default function ManageAnnouncementsPage() {
 
   useEffect(() => { load(); }, []);
 
-  const startNew = () => { setForm(EMPTY); setEditing(true); setError(null); };
+  const startNew = () => { setForm(EMPTY); setUrlInput(""); setImageError(null); setEditing(true); setError(null); };
   const startEdit = (a: Announcement) => {
     setForm({
       id: a.id, title: a.title, body: a.body, category: a.category, pinned: a.pinned,
-      time: a.time || "", endTime: a.endTime || ""
+      time: a.time || "", endTime: a.endTime || "", image: a.image || ""
     });
+    setUrlInput(a.image && !a.image.startsWith("data:") ? a.image : "");
+    setImageError(null);
     setEditing(true);
     setError(null);
   };
-  const cancel = () => { setForm(EMPTY); setEditing(false); setError(null); };
+  const cancel = () => { setForm(EMPTY); setUrlInput(""); setImageError(null); setEditing(false); setError(null); };
+
+  const pickFile = async (file: File | undefined) => {
+    if (!file) return;
+    setImageError(null);
+    try {
+      const src = await fileToImageSrc(file);
+      setUrlInput("");
+      setForm(prev => ({ ...prev, image: src }));
+    } catch (err) {
+      setImageError(err instanceof Error ? err.message : "Could not read that image.");
+    }
+  };
+
+  const changeUrl = (value: string) => {
+    setUrlInput(value);
+    const trimmed = value.trim();
+    if (trimmed === "") {
+      setForm(prev => ({ ...prev, image: "" }));
+      setImageError(null);
+    } else if (isImageUrl(trimmed)) {
+      setForm(prev => ({ ...prev, image: trimmed }));
+      setImageError(null);
+    } else {
+      setImageError("Link must be an image URL (https://…) or will be rejected on save.");
+    }
+  };
+
+  const removeImage = () => { setForm(prev => ({ ...prev, image: "" })); setUrlInput(""); setImageError(null); };
 
   const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     setError(null);
+    if (urlInput.trim() !== "" && !isImageUrl(urlInput.trim())) {
+      setImageError("The picture link is not a valid image URL.");
+      return;
+    }
     const url = form.id
       ? `http://localhost:4000/api/announcements/${form.id}`
       : "http://localhost:4000/api/announcements";
@@ -145,6 +184,39 @@ export default function ManageAnnouncementsPage() {
                 Body
                 <textarea required rows={4} value={form.body} onChange={e => setForm({ ...form, body: e.target.value })} style={{ ...field, resize: "vertical" }} />
               </label>
+
+              <div style={{ display: "grid", gridTemplateColumns: "160px 1fr", gap: "12px", alignItems: "start" }}>
+                <div>
+                  <ItemImage src={form.image} alt="Picture preview" kind="announcement" height={100} />
+                </div>
+                <div style={{ display: "grid", gap: "8px", minWidth: 0 }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                    Picture — upload a file or paste an image link. Items without one use the placeholder tile.
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => pickFile(e.target.files?.[0])}
+                    style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}
+                  />
+                  <input
+                    type="url"
+                    placeholder="https://…/poster.jpg"
+                    value={urlInput}
+                    onChange={e => changeUrl(e.target.value)}
+                    style={{ ...field, fontSize: "0.9rem" }}
+                  />
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                    {form.image && (
+                      <button type="button" onClick={removeImage} style={{ background: "none", border: "none", color: "var(--danger)", fontWeight: 700, cursor: "pointer", fontSize: "0.85rem", padding: 0 }}>
+                        Remove picture
+                      </button>
+                    )}
+                    {imageError && <span style={{ color: "var(--danger)", fontSize: "0.8rem" }}>{imageError}</span>}
+                  </div>
+                </div>
+              </div>
+
               <label style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "0.9rem", color: "var(--text)", cursor: "pointer" }}>
                 <input
                   type="checkbox"
@@ -171,6 +243,7 @@ export default function ManageAnnouncementsPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {announcements.map(a => (
               <section key={a.id} className="card" style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+                <ItemImage src={a.image} alt={a.title} kind="announcement" height={72} className="media--row" />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
                     <strong style={{ color: "var(--heading)", fontSize: "1.05rem" }}>{a.title}</strong>

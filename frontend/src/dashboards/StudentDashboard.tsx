@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import PinnedHero, { PinSummary } from "../components/PinnedHero";
+import ItemImage from "../components/ItemImage";
 import { getSession, Session } from "../access";
 
 interface ScheduleItem {
@@ -15,6 +16,7 @@ interface EventItem {
   id: number;
   title: string;
   date: string;
+  image?: string;
 }
 
 export interface StudentSummary {
@@ -111,9 +113,12 @@ export default function StudentDashboard() {
               {summary && summary.recentEvents.length > 0 ? (
                 <ul style={{ listStyle: "none", padding: 0, marginTop: "12px", display: "flex", flexDirection: "column", gap: "12px" }}>
                   {summary.recentEvents.map(evt => (
-                    <li key={evt.id} style={{ padding: "12px", backgroundColor: "var(--surface-alt)", borderRadius: "8px" }}>
-                      <strong style={{ color: "var(--accent)" }}>{evt.title}</strong>
-                      <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: "4px 0 0 0" }}>{evt.date}</p>
+                    <li key={evt.id} style={{ padding: "12px", backgroundColor: "var(--surface-alt)", borderRadius: "8px", display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                      {evt.image && <ItemImage src={evt.image} alt="" kind="event" height={44} className="media--mini" />}
+                      <div style={{ minWidth: 0 }}>
+                        <strong style={{ color: "var(--accent)" }}>{evt.title}</strong>
+                        <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", margin: "4px 0 0 0" }}>{evt.date}</p>
+                      </div>
                     </li>
                   ))}
                 </ul>

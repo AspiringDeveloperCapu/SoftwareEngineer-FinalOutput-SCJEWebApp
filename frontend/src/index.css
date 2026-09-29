@@ -650,6 +650,146 @@ select option {
   background: var(--glass);
 }
 
+/* ── Feed pictures: one shared tile, with the branded placeholder ───────── */
+.media {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+}
+
+.media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Items without a picture land here - gradient tile + label, never a broken
+   image. background: shorthand is required (the token is a gradient). */
+.media--placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: var(--grad-primary);
+  border: none;
+}
+
+.media--placeholder span {
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.media--placeholder small {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* A pin can show its picture as a thumbnail on the left. */
+.pin-row--media {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.pin-row--media .media {
+  width: 96px;
+  min-width: 96px;
+  height: 64px;
+  align-self: flex-start;
+}
+
+.pin-row--media > div:last-child {
+  min-width: 0;
+}
+
+/* ── Intro hero: the welcome/introduction band on the landing + dashboard ── */
+.intro-eyebrow {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.intro-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+  gap: 24px;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .intro-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Decorative art panel - the visual half of the introduction. */
+.intro-art {
+  position: relative;
+  overflow: hidden;
+  min-height: 210px;
+  border-radius: 14px;
+  background: var(--grad-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.intro-art::before,
+.intro-art::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.intro-art::before {
+  width: 180px;
+  height: 180px;
+  top: -60px;
+  right: -40px;
+}
+
+.intro-art::after {
+  width: 120px;
+  height: 120px;
+  bottom: -40px;
+  left: -30px;
+}
+
+.intro-art span {
+  position: relative;
+  z-index: 1;
+  font-size: 3.4rem;
+}
+
+/* Short art banner used inside the landing hero column. */
+.intro-art--banner {
+  min-height: 132px;
+  margin-top: 20px;
+}
+
+/* Compact thumbnail used in the manage lists. */
+.media--row {
+  width: 108px;
+  min-width: 108px;
+}
+
+.media--mini {
+  width: 64px;
+  min-width: 64px;
+}
+
 /* ── Timetable: the schedule drawn as rows (time) × columns (days) ──────── */
 .tt-wrap {
   overflow-x: auto;

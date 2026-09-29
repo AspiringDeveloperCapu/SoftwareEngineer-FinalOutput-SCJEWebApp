@@ -92,6 +92,14 @@ generatedStudents.forEach((s) => {
   });
 });
 
+// Small inline SVG stand-ins so the demo feed ships with real pictures. Every
+// one of them can be replaced from the manage forms (file upload or URL), and
+// items without a picture fall back to the placeholder tile in the UI.
+const svgImage = (emoji) => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E11D48"/><stop offset="1" stop-color="#7C3AED"/></linearGradient></defs><rect width="640" height="360" fill="url(#g)"/><text x="320" y="184" font-size="128" text-anchor="middle" dominant-baseline="central">${emoji}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+};
+
 const mockEvents = [
   {
     id: 1,
@@ -103,7 +111,8 @@ const mockEvents = [
     location: "Main Auditorium",
     type: "seminar",
     status: "published",
-    pinned: false
+    pinned: false,
+    image: svgImage("🎓")
   },
   {
     id: 2,
@@ -115,7 +124,8 @@ const mockEvents = [
     location: "Gymnasium & Field",
     type: "sports",
     status: "published",
-    pinned: true
+    pinned: true,
+    image: svgImage("🏀")
   },
   {
     id: 3,
@@ -185,7 +195,8 @@ const mockAnnouncements = [
     time: "07:30",
     endTime: "12:00",
     category: "academic",
-    pinned: true
+    pinned: true,
+    image: svgImage("📝")
   },
   {
     id: 2,
@@ -207,7 +218,8 @@ const mockAnnouncements = [
     time: "09:00",
     endTime: "16:00",
     category: "event",
-    pinned: false
+    pinned: false,
+    image: svgImage("🏅")
   },
   {
     id: 4,

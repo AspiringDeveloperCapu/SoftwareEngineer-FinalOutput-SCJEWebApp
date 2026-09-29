@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import ItemImage from "../components/ItemImage";
+import { fileToImageSrc, isImageUrl } from "../image";
 import { formatTimeRange } from "../format";
 
 interface EventItem {
@@ -13,6 +15,7 @@ interface EventItem {
   type: string;
   status: "draft" | "published" | "cancelled";
   pinned: boolean;
+  image?: string;
 }
 
 interface EventFormState {
@@ -26,6 +29,7 @@ interface EventFormState {
   type: string;
   status: EventItem["status"];
   pinned: boolean;
+  image: string;
 }
 
 const EMPTY: EventFormState = {
@@ -37,7 +41,8 @@ const EMPTY: EventFormState = {
   location: "",
   type: "event",
   status: "published",
-  pinned: false
+  pinned: false,
+  image: ""
 };
 
 type StatusFilter = "All" | EventItem["status"];
@@ -68,6 +73,8 @@ export default function ManageEventsPage() {
   const [editing, setEditing] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
   const [error, setError] = useState<string | null>(null);
+  const [urlInput, setUrlInput] = useState("");
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const load = () =>
     fetch("http://localhost:4000/api/admin/events", { headers: authHeaders() })
@@ -77,13 +84,51 @@ export default function ManageEventsPage() {
 
   useEffect(() => { load(); }, []);
 
-  const startNew = () => { setForm(EMPTY); setEditing(true); setError(null); };
-  const startEdit = (e: EventItem) => { setForm(e); setEditing(true); setError(null); };
-  const cancel = () => { setForm(EMPTY); setEditing(false); setError(null); };
+  const startNew = () => { setForm(EMPTY); setUrlInput(""); setImageError(null); setEditing(true); setError(null); };
+  const startEdit = (e: EventItem) => {
+    setForm({ ...e, image: e.image || "" });
+    setUrlInput(e.image && !e.image.startsWith("data:") ? e.image : "");
+    setImageError(null);
+    setEditing(true);
+    setError(null);
+  };
+  const cancel = () => { setForm(EMPTY); setUrlInput(""); setImageError(null); setEditing(false); setError(null); };
+
+  const pickFile = async (file: File | undefined) => {
+    if (!file) return;
+    setImageError(null);
+    try {
+      const src = await fileToImageSrc(file);
+      setUrlInput("");
+      setForm(prev => ({ ...prev, image: src }));
+    } catch (err) {
+      setImageError(err instanceof Error ? err.message : "Could not read that image.");
+    }
+  };
+
+  const changeUrl = (value: string) => {
+    setUrlInput(value);
+    const trimmed = value.trim();
+    if (trimmed === "") {
+      setForm(prev => ({ ...prev, image: "" }));
+      setImageError(null);
+    } else if (isImageUrl(trimmed)) {
+      setForm(prev => ({ ...prev, image: trimmed }));
+      setImageError(null);
+    } else {
+      setImageError("Link must be an image URL (https://…) or will be rejected on save.");
+    }
+  };
+
+  const removeImage = () => { setForm(prev => ({ ...prev, image: "" })); setUrlInput(""); setImageError(null); };
 
   const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     setError(null);
+    if (urlInput.trim() !== "" && !isImageUrl(urlInput.trim())) {
+      setImageError("The picture link is not a valid image URL.");
+      return;
+    }
     const url = form.id ? `http://localhost:4000/api/events/${form.id}` : "http://localhost:4000/api/events";
     try {
       const res = await fetch(url, {
@@ -199,6 +244,38 @@ export default function ManageEventsPage() {
                 <textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} style={{ ...field, resize: "vertical" }} />
               </label>
 
+              <div style={{ display: "grid", gridTemplateColumns: "160px 1fr", gap: "12px", alignItems: "start" }}>
+                <div>
+                  <ItemImage src={form.image} alt="Picture preview" kind="event" height={100} />
+                </div>
+                <div style={{ display: "grid", gap: "8px", minWidth: 0 }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                    Picture — upload a file or paste an image link. Items without one use the placeholder tile.
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => pickFile(e.target.files?.[0])}
+                    style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}
+                  />
+                  <input
+                    type="url"
+                    placeholder="https://…/poster.jpg"
+                    value={urlInput}
+                    onChange={e => changeUrl(e.target.value)}
+                    style={{ ...field, fontSize: "0.9rem" }}
+                  />
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                    {form.image && (
+                      <button type="button" onClick={removeImage} style={{ background: "none", border: "none", color: "var(--danger)", fontWeight: 700, cursor: "pointer", fontSize: "0.85rem", padding: 0 }}>
+                        Remove picture
+                      </button>
+                    )}
+                    {imageError && <span style={{ color: "var(--danger)", fontSize: "0.8rem" }}>{imageError}</span>}
+                  </div>
+                </div>
+              </div>
+
               {error && <p style={{ color: "var(--danger)", margin: 0, fontSize: "0.9rem" }}>{error}</p>}
 
               <div style={{ display: "flex", gap: "8px" }}>
@@ -250,7 +327,12 @@ export default function ManageEventsPage() {
                         {e.pinned ? "📌" : "📍"}
                       </button>
                     </td>
-                    <td style={{ padding: "12px", fontWeight: 600, color: "var(--heading)" }}>{e.title}</td>
+                    <td style={{ padding: "12px", fontWeight: 600, color: "var(--heading)" }}>
+                      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                        {e.image && <ItemImage src={e.image} alt="" kind="event" height={40} className="media--mini" />}
+                        <span>{e.title}</span>
+                      </div>
+                    </td>
                     <td style={{ padding: "12px", color: "var(--text-dim)" }}>
                       {e.date}
                       {formatTimeRange(e.time, e.endTime) && (
