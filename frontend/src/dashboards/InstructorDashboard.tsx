@@ -27,7 +27,7 @@ interface InstructorSummary {
   upcomingClasses: ClassItem[];
   unreadNotifications: number;
   recentEvents: EventItem[];
-  pin?: PinSummary | null;
+  pins?: PinSummary[];
 }
 
 export default function InstructorDashboard() {
@@ -64,7 +64,7 @@ export default function InstructorDashboard() {
           <PinnedHero
             user={user}
             subtitle={`${user.department} Department — Teaching load and events`}
-            pin={summary?.pin}
+            pins={summary?.pins}
             fallbackBadge={{ text: "👨‍🏫 Instructor", background: "var(--accent-solid)", color: "var(--on-brand)" }}
           />
 

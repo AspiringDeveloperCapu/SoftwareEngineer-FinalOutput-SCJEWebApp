@@ -15,20 +15,22 @@ export interface PinSummary {
 interface Props {
   user: Session;
   subtitle: string;
-  pin?: PinSummary | null;
+  pins?: PinSummary[] | null;
   fallbackBadge: { text: string; background: string; color: string };
 }
 
 /**
- * The dashboard hero for every full-access role: it greets the user and, when
- * the admin has pinned something, shows that pin (announcement first, else the
- * pinned event). Clicking the pin opens the feed where it lives.
+ * The dashboard hero for every full-access role: it greets the user and stacks
+ * everything the admin has pinned - announcements first, then events. Pins are
+ * independent, so any number of them can show here at once. Clicking a pin (or
+ * the hero) opens the feed where it lives.
  */
-export default function PinnedHero({ user, subtitle, pin, fallbackBadge }: Props) {
+export default function PinnedHero({ user, subtitle, pins, fallbackBadge }: Props) {
   const navigate = useNavigate();
+  const list = pins || [];
 
-  const badge = pin
-    ? { text: "📌 Pinned", background: "var(--gold)", color: "var(--on-gold)" }
+  const badge = list.length > 0
+    ? { text: `📌 ${list.length} Pinned`, background: "var(--gold)", color: "var(--on-gold)" }
     : fallbackBadge;
 
   return (
@@ -37,10 +39,10 @@ export default function PinnedHero({ user, subtitle, pin, fallbackBadge }: Props
       style={{
         position: "relative",
         overflow: "hidden",
-        cursor: pin ? "pointer" : undefined,
-        borderColor: pin ? "var(--gold)" : undefined
+        cursor: list.length > 0 ? "pointer" : undefined,
+        borderColor: list.length > 0 ? "var(--gold)" : undefined
       }}
-      onClick={pin ? () => navigate("/events") : undefined}
+      onClick={list.length > 0 ? () => navigate("/events") : undefined}
     >
       <div
         style={{
@@ -61,10 +63,11 @@ export default function PinnedHero({ user, subtitle, pin, fallbackBadge }: Props
       <h1 style={{ fontSize: "1.5rem" }}>Welcome, {user.name}!</h1>
       <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: "8px" }}>{subtitle}</p>
 
-      {pin && (
+      {list.map((pin, i) => (
         <div
+          key={`${pin.type}-${pin.id}`}
           style={{
-            marginTop: "16px",
+            marginTop: i === 0 ? "16px" : "10px",
             padding: "14px 16px",
             borderRadius: "12px",
             backgroundColor: "var(--surface-alt)",
@@ -82,7 +85,7 @@ export default function PinnedHero({ user, subtitle, pin, fallbackBadge }: Props
             Open the feed →
           </span>
         </div>
-      )}
+      ))}
     </section>
   );
 }

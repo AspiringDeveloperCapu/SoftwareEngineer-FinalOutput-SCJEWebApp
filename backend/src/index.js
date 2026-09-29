@@ -242,10 +242,9 @@ app.post('/api/announcements', authenticate, requireRole('admin'), (req, res) =>
     author: req.user.name,
     date: new Date().toISOString().slice(0, 10),
     category: category || "announcement",
-    pinned: false
+    pinned: !!pinned
   };
   mockAnnouncements.push(announcement);
-  if (pinned) pinExclusive(mockAnnouncements, announcement.id);
   res.status(201).json({ announcement });
 });
 
@@ -261,7 +260,6 @@ app.put('/api/announcements/:id', authenticate, requireRole('admin'), (req, res)
     ...(category && { category }),
     ...(pinned !== undefined && { pinned: !!pinned })
   };
-  if (pinned) pinExclusive(mockAnnouncements, mockAnnouncements[index].id);
   res.json({ announcement: mockAnnouncements[index] });
 });
 
@@ -561,7 +559,7 @@ app.get('/api/dashboard/summary', authenticate, (req, res) => {
       upcomingClasses: classes.slice(0, 4),
       unreadNotifications,
       recentEvents,
-      pin: pinForSummary()
+      pins: pinsForSummary()
     });
   }
 
@@ -574,7 +572,7 @@ app.get('/api/dashboard/summary', authenticate, (req, res) => {
       unreadNotifications,
       recentEvents,
       faculty: mockFaculty.slice(0, 4),
-      pin: pinForSummary()
+      pins: pinsForSummary()
     });
   }
 
@@ -588,7 +586,7 @@ app.get('/api/dashboard/summary', authenticate, (req, res) => {
     upcomingClasses: schedule.slice(0, 3),
     unreadNotifications,
     recentEvents,
-    pin: pinForSummary()
+    pins: pinsForSummary()
   });
 });
 

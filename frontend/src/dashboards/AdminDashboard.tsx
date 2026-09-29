@@ -25,7 +25,7 @@ interface AdminSummary {
   unreadNotifications: number;
   recentEvents: EventItem[];
   faculty: FacultyItem[];
-  pin?: PinSummary | null;
+  pins?: PinSummary[];
 }
 
 export default function AdminDashboard() {
@@ -69,7 +69,7 @@ export default function AdminDashboard() {
           <PinnedHero
             user={user}
             subtitle={`${user.department} — MIS Office · Full access to the back office`}
-            pin={summary?.pin}
+            pins={summary?.pins}
             fallbackBadge={{ text: "⚙️ Administrator", background: "var(--gold)", color: "var(--on-gold)" }}
           />
 

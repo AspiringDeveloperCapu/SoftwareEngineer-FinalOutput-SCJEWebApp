@@ -24,7 +24,7 @@ export interface StudentSummary {
   upcomingClasses: ScheduleItem[];
   unreadNotifications: number;
   recentEvents: EventItem[];
-  pin?: PinSummary | null;
+  pins?: PinSummary[];
 }
 
 export default function StudentDashboard() {
@@ -62,7 +62,7 @@ export default function StudentDashboard() {
           <PinnedHero
             user={user}
             subtitle={`${user.department} — ${user.course}${user.section ? ` / ${user.section}` : ""}`}
-            pin={summary?.pin}
+            pins={summary?.pins}
             fallbackBadge={{ text: "🎓 Student", background: "var(--accent-solid)", color: "var(--on-brand)" }}
           />
 
