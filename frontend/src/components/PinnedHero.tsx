@@ -63,29 +63,23 @@ export default function PinnedHero({ user, subtitle, pins, fallbackBadge }: Prop
       <h1 style={{ fontSize: "1.5rem" }}>Welcome, {user.name}!</h1>
       <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginTop: "8px" }}>{subtitle}</p>
 
-      {list.map((pin, i) => (
-        <div
-          key={`${pin.type}-${pin.id}`}
-          style={{
-            marginTop: i === 0 ? "16px" : "10px",
-            padding: "14px 16px",
-            borderRadius: "12px",
-            backgroundColor: "var(--surface-alt)",
-            border: "1px solid var(--hairline)",
-            borderLeft: "4px solid var(--gold)"
-          }}
-        >
-          <strong style={{ color: "var(--heading)", fontSize: "1.05rem" }}>{pin.title}</strong>
-          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", margin: "6px 0 0", lineHeight: 1.5 }}>
-            {pin.type === "announcement"
-              ? (pin.body || "").slice(0, 160)
-              : `${pin.date}${pin.location ? ` · ${pin.location}` : ""}`}
-          </p>
-          <span style={{ display: "inline-block", marginTop: "8px", color: "var(--accent)", fontWeight: 700, fontSize: "0.8rem" }}>
-            Open the feed →
-          </span>
+      {list.length > 0 && (
+        <div className="pin-stack">
+          {list.map(pin => (
+            <div key={`${pin.type}-${pin.id}`} className="pin-row">
+              <strong style={{ color: "var(--heading)", fontSize: "1.05rem" }}>{pin.title}</strong>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", margin: "6px 0 0", lineHeight: 1.5 }}>
+                {pin.type === "announcement"
+                  ? (pin.body || "").slice(0, 160)
+                  : `${pin.date}${pin.location ? ` · ${pin.location}` : ""}`}
+              </p>
+              <span style={{ display: "inline-block", marginTop: "8px", color: "var(--accent)", fontWeight: 700, fontSize: "0.8rem" }}>
+                Open the feed →
+              </span>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
     </section>
   );
 }

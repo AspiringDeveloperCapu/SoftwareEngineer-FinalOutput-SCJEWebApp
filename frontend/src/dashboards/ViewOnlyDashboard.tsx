@@ -103,8 +103,8 @@ export default function ViewOnlyDashboard() {
   const chipStyle = (active: boolean): React.CSSProperties => ({
     padding: "8px 16px",
     borderRadius: "99px",
-    border: active ? "none" : "1px solid var(--border-strong)",
-    backgroundColor: active ? "var(--grad-primary)" : "var(--surface)",
+    border: active ? "none" : "1px solid var(--glass-border)",
+    background: active ? "var(--grad-primary)" : "var(--glass)",
     color: active ? "var(--on-primary)" : "var(--text)",
     fontWeight: 600,
     fontSize: "0.85rem",
@@ -152,15 +152,15 @@ export default function ViewOnlyDashboard() {
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "12px", marginTop: "20px" }}>
-                  <div style={{ padding: "12px", borderRadius: "12px", background: "var(--surface-alt)", border: "1px solid var(--hairline)", textAlign: "center" }}>
+                  <div className="card" style={{ padding: "12px", borderRadius: "12px", textAlign: "center" }}>
                     <strong style={{ color: "var(--heading)", fontSize: "1.3rem", display: "block" }}>{events.length}</strong>
                     <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>Events on file</span>
                   </div>
-                  <div style={{ padding: "12px", borderRadius: "12px", background: "var(--surface-alt)", border: "1px solid var(--hairline)", textAlign: "center" }}>
+                  <div className="card" style={{ padding: "12px", borderRadius: "12px", textAlign: "center" }}>
                     <strong style={{ color: "var(--accent)", fontSize: "1.3rem", display: "block" }}>{announcements.length}</strong>
                     <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>Announcements</span>
                   </div>
-                  <div style={{ padding: "12px", borderRadius: "12px", background: "var(--surface-alt)", border: "1px solid var(--hairline)", textAlign: "center" }}>
+                  <div className="card" style={{ padding: "12px", borderRadius: "12px", textAlign: "center" }}>
                     <strong style={{ color: "var(--gold)", fontSize: "1.3rem", display: "block" }}>
                       {events.filter(e => e.date >= today()).length}
                     </strong>

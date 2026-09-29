@@ -18,7 +18,7 @@
 :root {
   color-scheme: light;
 
-  --bg: #F6F8FA;            /* AppColors.surfaceLight - page behind the cards */
+  --bg: #F7F3FA;            /* soft lilac page behind the cards */
   --surface: #FFFFFF;       /* cards, dropdowns, inputs */
   --surface-alt: #F6F8FA;   /* navbar, list rows, anything a shade below a card */
   --surface-2: #F0F0F0;     /* pressed / inset rows */
@@ -49,27 +49,35 @@
   --hairline: rgba(0, 0, 0, 0.05);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 
-  /* Gradient twins. In light mode they hold the flat colour they stand in for,
-     so nothing on screen changes until the theme flips. */
-  --grad-primary: #C9A227;                 /* primary buttons, active nav pill */
-  --on-primary: #06263D;                   /* label on --grad-primary */
-  --grad-bar: rgba(246, 248, 250, 0.82);   /* header bar */
-  --grad-panel: transparent;               /* hero / soft feature panels */
+  /* The purple + red combo carries both themes. Light uses the deeper end of
+     it so white labels stay legible on buttons and active pills. */
+  --grad-primary: linear-gradient(135deg, #E11D48 0%, #7C3AED 100%);
+  --on-primary: #FFFFFF;                   /* label on --grad-primary */
+  --grad-bar: rgba(255, 255, 255, 0.78);   /* header bar */
+  --grad-panel: linear-gradient(135deg, rgba(225, 29, 72, 0.05) 0%, rgba(124, 58, 237, 0.07) 100%);
   --grad-ink: #0B3D63;                     /* gradient text (brand title) */
-  --bg-image: none;                        /* page backdrop wash */
+  --bg-image:                              /* page backdrop wash */
+    radial-gradient(1100px 520px at 12% -8%, rgba(255, 61, 110, 0.10), transparent 60%),
+    radial-gradient(900px 460px at 88% -4%, rgba(138, 63, 252, 0.10), transparent 60%),
+    linear-gradient(165deg, #F9F5FC 0%, #FDF4F7 50%, #F5F2FD 100%);
 
   /* Frosted glass: text boxes, header and menus, in both themes. */
   --glass: rgba(255, 255, 255, 0.62);
   --glass-strong: rgba(255, 255, 255, 0.9);
   --glass-border: rgba(11, 61, 99, 0.16);
   --blur: blur(12px);
+
+  /* Text cards: frosted panels the gradient wash shows through. */
+  --card-glass: rgba(255, 255, 255, 0.66);
+  --card-glass-border: rgba(90, 40, 140, 0.16);
+  --blur-card: blur(16px) saturate(1.3);
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
 
   /* Red + purple, from the page background up. */
-  --bg: #1A0712;
+  --bg: #1C0716;
   --surface: #0D0412;
   --surface-alt: #221030;
   --surface-2: #2B1539;
@@ -108,12 +116,18 @@
   --grad-ink: linear-gradient(90deg, #FF6B9D 0%, #B98BFF 100%);
   --bg-image:
     radial-gradient(1100px 520px at 12% -8%, rgba(255, 61, 110, 0.18), transparent 62%),
-    radial-gradient(900px 460px at 88% -4%, rgba(138, 63, 252, 0.18), transparent 62%);
+    radial-gradient(900px 460px at 88% -4%, rgba(138, 63, 252, 0.18), transparent 62%),
+    linear-gradient(165deg, #1C0716 0%, #2A0B33 48%, #33081D 100%);
 
   /* Frosted glass reads darker here so text stays legible over the wash. */
   --glass: rgba(255, 255, 255, 0.07);
   --glass-strong: rgba(26, 8, 40, 0.78);
   --glass-border: rgba(255, 255, 255, 0.14);
+
+  /* Text cards: darker frost so the gradient wash reads through them. */
+  --card-glass: rgba(32, 12, 46, 0.62);
+  --card-glass-border: rgba(255, 255, 255, 0.14);
+  --blur-card: blur(16px) saturate(1.3);
 }
 
 * {
@@ -528,13 +542,15 @@ textarea::placeholder {
 }
 
 .hero {
-  background-color: var(--surface);
+  background-color: var(--card-glass);
   background-image: var(--grad-panel);
+  backdrop-filter: var(--blur-card);
+  -webkit-backdrop-filter: var(--blur-card);
   padding: 24px;
   border-radius: 16px; /* Corners.lg */
   margin-bottom: 24px;
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--card-glass-border);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .hero h1 {
@@ -563,11 +579,13 @@ textarea::placeholder {
 }
 
 .card {
-  background-color: var(--surface);
+  background-color: var(--card-glass);
+  backdrop-filter: var(--blur-card);
+  -webkit-backdrop-filter: var(--blur-card);
   padding: 24px;
   border-radius: 16px; /* Corners.lg */
-  border: 1px solid var(--hairline);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--card-glass-border);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .card h3 {
@@ -590,8 +608,10 @@ textarea::placeholder {
   width: 100%;
   padding: 12px 14px;
   border-radius: 12px;
-  background: var(--surface-alt);
-  border: 1px solid var(--hairline);
+  background: var(--glass);
+  backdrop-filter: var(--blur-card);
+  -webkit-backdrop-filter: var(--blur-card);
+  border: 1px solid var(--card-glass-border);
   border-left: 4px solid var(--gold);
   cursor: pointer;
 }
