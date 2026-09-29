@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { formatWhen } from "../format";
 
 interface EventItem {
   id: number;
   title: string;
   date: string;
+  time?: string;
+  endTime?: string;
   description: string;
   location: string;
   type: string;
@@ -194,7 +197,8 @@ export default function Events() {
                     <p style={{ color: "var(--text-muted)", lineHeight: "1.5", fontSize: "0.9rem" }}>
                       {evt.description.substring(0, 100)}...
                     </p>
-                    <p style={{ color: "var(--heading)", fontSize: "0.8rem", marginTop: "8px" }}>📍 {evt.location}</p>
+                    <p style={{ color: "var(--heading)", fontSize: "0.8rem", marginTop: "8px" }}>📅 {formatWhen(evt.date, evt.time, evt.endTime)}</p>
+                    <p style={{ color: "var(--text-faint)", fontSize: "0.8rem", marginTop: "4px" }}>📍 {evt.location}</p>
                   </section>
                 );
               })

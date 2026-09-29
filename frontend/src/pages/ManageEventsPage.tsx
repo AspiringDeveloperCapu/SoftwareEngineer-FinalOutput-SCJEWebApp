@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import { formatTimeRange } from "../format";
 
 interface EventItem {
   id: number;
   title: string;
   date: string;
+  time: string;
+  endTime: string;
   description: string;
   location: string;
   type: string;
@@ -16,6 +19,8 @@ interface EventFormState {
   id?: number;
   title: string;
   date: string;
+  time: string;
+  endTime: string;
   description: string;
   location: string;
   type: string;
@@ -26,6 +31,8 @@ interface EventFormState {
 const EMPTY: EventFormState = {
   title: "",
   date: "",
+  time: "",
+  endTime: "",
   description: "",
   location: "",
   type: "event",
@@ -157,6 +164,14 @@ export default function ManageEventsPage() {
                   <input required type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} style={field} />
                 </label>
                 <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                  Start time
+                  <input type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} style={field} />
+                </label>
+                <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                  End time
+                  <input type="time" value={form.endTime} onChange={e => setForm({ ...form, endTime: e.target.value })} style={field} />
+                </label>
+                <label style={{ display: "grid", gap: "4px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
                   Location
                   <input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} style={field} />
                 </label>
@@ -236,7 +251,14 @@ export default function ManageEventsPage() {
                       </button>
                     </td>
                     <td style={{ padding: "12px", fontWeight: 600, color: "var(--heading)" }}>{e.title}</td>
-                    <td style={{ padding: "12px", color: "var(--text-dim)" }}>{e.date}</td>
+                    <td style={{ padding: "12px", color: "var(--text-dim)" }}>
+                      {e.date}
+                      {formatTimeRange(e.time, e.endTime) && (
+                        <div style={{ fontSize: "0.78rem", color: "var(--text-faint)" }}>
+                          {formatTimeRange(e.time, e.endTime)}
+                        </div>
+                      )}
+                    </td>
                     <td style={{ padding: "12px", color: "var(--text-dim)" }}>{e.location}</td>
                     <td style={{ padding: "12px" }}>
                       <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "3px 10px", borderRadius: "99px", backgroundColor: "var(--surface-2)", color: "var(--text)" }}>

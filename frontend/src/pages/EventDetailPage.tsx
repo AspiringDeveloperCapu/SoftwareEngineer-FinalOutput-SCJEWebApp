@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { formatWhen } from "../format";
 
 interface EventDetail {
   id: number;
   title: string;
   date: string;
+  time?: string;
+  endTime?: string;
   description: string;
   location: string;
   type: string;
@@ -72,8 +75,8 @@ export default function EventDetailPage() {
               </span>
             </div>
 
-            <div style={{ display: "flex", gap: "24px", marginBottom: "24px", color: "var(--text-muted)" }}>
-              <p>📅 {event.date}</p>
+            <div style={{ display: "flex", gap: "24px", marginBottom: "24px", color: "var(--text-muted)", flexWrap: "wrap" }}>
+              <p>📅 {formatWhen(event.date, event.time, event.endTime)}</p>
               <p>📍 {event.location}</p>
             </div>
 
