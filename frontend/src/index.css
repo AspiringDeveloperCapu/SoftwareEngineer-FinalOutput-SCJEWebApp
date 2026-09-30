@@ -4,13 +4,13 @@
  * to change.
  *
  * Tokens are named by role, not by hue: --heading is "the colour a heading is",
- * which is navy on paper and a light lavender on a dark surface.
+ * which is near-black on paper and a red tint on a dark surface.
  *
  * Two theme rules live here:
- *   1. Dark mode is a red + purple world. Every brand surface that reads as a
- *      flat colour in light mode is backed by a --grad-* twin that turns into a
- *      red-to-purple gradient after dark. Light mode keeps the flat values, so
- *      it looks exactly as it always did.
+ *   1. Dark mode is a red + black world. The primary gradient fades red into
+ *      charcoal, every flat surface drops to near-black, and gold is the one
+ *      secondary accent. Light mode keeps flat neutral pages with the same
+ *      red-to-black accent.
  *   2. Text boxes are frosted glass in BOTH themes: transparent fill plus a
  *      backdrop blur, so the surface underneath shows through. The header bar
  *      and the dropdown menus are frosted the same way.
@@ -18,24 +18,24 @@
 :root {
   color-scheme: light;
 
-  --bg: #F7F3FA;            /* soft lilac page behind the cards */
+  --bg: #F6F4F4;            /* warm neutral page behind the cards */
   --surface: #FFFFFF;       /* cards, dropdowns, inputs */
-  --surface-alt: #F6F8FA;   /* navbar, list rows, anything a shade below a card */
-  --surface-2: #F0F0F0;     /* pressed / inset rows */
+  --surface-alt: #F6F6F7;   /* navbar, list rows, anything a shade below a card */
+  --surface-2: #EFEFF0;     /* pressed / inset rows */
 
-  --text: #06263D;          /* AppColors.navyDeep - body copy */
-  --heading: #0B3D63;       /* AppColors.navy - titles, links, numbers */
+  --text: #1A1A1C;          /* body copy - near-black */
+  --heading: #0B0B0C;       /* titles, links, numbers - black */
   --text-muted: #666;       /* supporting copy */
   --text-faint: #888;       /* timestamps, captions */
   --text-dim: #333;
 
   --accent: #8C1D40;        /* AppColors.crimson - card headings, emphasis */
   --accent-solid: #8C1D40;  /* crimson as a fill, always under white text */
-  --gold: #C9A227;          /* AppColors.gold - accents and borders */
-  --on-gold: #06263D;       /* gold is a fixed pairing in both themes */
+  --gold: #C9A227;          /* AppColors.gold - the one secondary accent */
+  --on-gold: #1A1A1C;       /* gold is a fixed pairing in both themes */
 
-  --brand: #88b0cf;         /* navy as a surface: primary buttons, avatars */
-  --brand-strong: #324e63;  /* active nav item */
+  --brand: #27272A;         /* charcoal as a surface: avatars, alt buttons */
+  --brand-strong: #18181B;  /* active nav item */
   --on-brand: #FFFFFF;
 
   --success: #2E7D32;
@@ -44,59 +44,59 @@
   --danger: #ce5d5d;
   --danger-bg: #FFEBEE;
 
-  --border: #b97878;
+  --border: #CBC7C9;
   --border-strong: #DDDDDD;
   --hairline: rgba(0, 0, 0, 0.05);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 
-  /* The purple + red combo carries both themes. Light uses the deeper end of
+  /* The red + black combo carries both themes. Light uses the deeper end of
      it so white labels stay legible on buttons and active pills. */
-  --grad-primary: linear-gradient(135deg, #E11D48 0%, #7C3AED 100%);
+  --grad-primary: linear-gradient(135deg, #E11D48 0%, #18181B 100%);
   --on-primary: #FFFFFF;                   /* label on --grad-primary */
   --grad-bar: rgba(255, 255, 255, 0.78);   /* header bar */
-  --grad-panel: linear-gradient(135deg, rgba(225, 29, 72, 0.05) 0%, rgba(124, 58, 237, 0.07) 100%);
-  --grad-ink: #0B3D63;                     /* gradient text (brand title) */
+  --grad-panel: linear-gradient(135deg, rgba(225, 29, 72, 0.05) 0%, rgba(24, 24, 27, 0.07) 100%);
+  --grad-ink: #B9123A;                     /* gradient text (brand title) */
   --bg-image:                              /* page backdrop wash */
     radial-gradient(1100px 520px at 12% -8%, rgba(255, 61, 110, 0.10), transparent 60%),
-    radial-gradient(900px 460px at 88% -4%, rgba(138, 63, 252, 0.10), transparent 60%),
-    linear-gradient(165deg, #F9F5FC 0%, #FDF4F7 50%, #F5F2FD 100%);
+    radial-gradient(900px 460px at 88% -4%, rgba(24, 24, 27, 0.10), transparent 60%),
+    linear-gradient(165deg, #F7F7F8 0%, #F5F1F2 50%, #EFEFF0 100%);
 
   /* Frosted glass: text boxes, header and menus, in both themes. */
   --glass: rgba(255, 255, 255, 0.62);
   --glass-strong: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(11, 61, 99, 0.16);
+  --glass-border: rgba(24, 24, 27, 0.16);
   --blur: blur(12px);
 
   /* Text cards: frosted panels the gradient wash shows through. */
   --card-glass: rgba(255, 255, 255, 0.60);
-  --card-glass-border: rgba(90, 40, 140, 0.20);
+  --card-glass-border: rgba(24, 24, 27, 0.14);
   --blur-card: blur(16px) saturate(1.3);
   --sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 45%);
-  --shadow-card: 0 10px 28px rgba(61, 26, 92, 0.10);
+  --shadow-card: 0 10px 28px rgba(24, 24, 27, 0.10);
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
 
-  /* Red + purple, from the page background up. */
-  --bg: #1C0716;
-  --surface: #0D0412;
-  --surface-alt: #221030;
-  --surface-2: #2B1539;
+  /* Red + black, from the page background up. */
+  --bg: #0B0B0D;
+  --surface: #141416;
+  --surface-alt: #1B1B1E;
+  --surface-2: #242427;
 
-  --text: #EFE6F5;
-  --heading: #DDB4FF;
-  --text-muted: #C6B6D6;
-  --text-faint: #95859F;
-  --text-dim: #E6DAF2;
+  --text: #EDEDEF;
+  --heading: #FF6B84;
+  --text-muted: #B8B8BD;
+  --text-faint: #8A8A90;
+  --text-dim: #E3E3E5;
 
   --accent: #FF7EA8;       /* red-pink emphasis */
   --accent-solid: #C31F4F; /* crimson fill under white text */
   --gold: #FFA8BD;         /* pins and accents read pink after dark */
-  --on-gold: #06263D;
+  --on-gold: #0B0B0D;
 
-  --brand: #7A2FA8;        /* purple surface */
-  --brand-strong: #4E1273;
+  --brand: #3F3F46;        /* charcoal surface */
+  --brand-strong: #27272A;
   --on-brand: #FFFFFF;
 
   --success: #7BD98A;
@@ -105,32 +105,32 @@
   --danger: #FF7A75;
   --danger-bg: #33191C;
 
-  --border: #33193F;
-  --border-strong: #43274F;
+  --border: #2E2E33;
+  --border-strong: #3F3F46;
   --hairline: rgba(255, 255, 255, 0.08);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 
-  /* The red-to-purple combo. */
-  --grad-primary: linear-gradient(135deg, #FF3D6E 0%, #8A3FFC 100%);
+  /* The red-to-black combo. */
+  --grad-primary: linear-gradient(135deg, #FF3D6E 0%, #E11D48 55%, #18181B 100%);
   --on-primary: #FFFFFF;
-  --grad-bar: linear-gradient(90deg, rgba(52, 8, 38, 0.86) 0%, rgba(36, 6, 68, 0.86) 100%);
-  --grad-panel: linear-gradient(135deg, rgba(255, 61, 110, 0.16) 0%, rgba(138, 63, 252, 0.16) 100%);
-  --grad-ink: linear-gradient(90deg, #FF6B9D 0%, #B98BFF 100%);
+  --grad-bar: linear-gradient(90deg, rgba(18, 12, 13, 0.88) 0%, rgba(10, 10, 12, 0.88) 100%);
+  --grad-panel: linear-gradient(135deg, rgba(255, 61, 110, 0.16) 0%, rgba(24, 24, 27, 0.20) 100%);
+  --grad-ink: linear-gradient(90deg, #FF6B84 0%, #FF3D6E 100%);
   --bg-image:
-    radial-gradient(1100px 520px at 12% -8%, rgba(255, 61, 110, 0.18), transparent 62%),
-    radial-gradient(900px 460px at 88% -4%, rgba(138, 63, 252, 0.18), transparent 62%),
-    linear-gradient(165deg, #1C0716 0%, #2A0B33 48%, #33081D 100%);
+    radial-gradient(1100px 520px at 12% -8%, rgba(255, 61, 110, 0.14), transparent 62%),
+    radial-gradient(900px 460px at 88% -4%, rgba(17, 7, 9, 0.30), transparent 62%),
+    linear-gradient(165deg, #1A0A0C 0%, #121011 48%, #0A0A0B 100%);
 
   /* Frosted glass reads darker here so text stays legible over the wash. */
   --glass: rgba(255, 255, 255, 0.07);
-  --glass-strong: rgba(26, 8, 40, 0.78);
+  --glass-strong: rgba(16, 16, 18, 0.82);
   --glass-border: rgba(255, 255, 255, 0.14);
 
   /* Text cards: darker frost so the gradient wash reads through them. */
-  --card-glass: rgba(28, 10, 42, 0.52);
+  --card-glass: rgba(28, 24, 25, 0.55);
   --card-glass-border: rgba(255, 255, 255, 0.18);
   --blur-card: blur(16px) saturate(1.3);
-  --sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 42%);
+  --sheen: linear-gradient(135deg, rgba(245, 227, 227, 0.07) 0%, rgba(235, 221, 221, 0) 42%);
   --shadow-card: 0 14px 34px rgba(0, 0, 0, 0.32);
 }
 

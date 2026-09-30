@@ -130,7 +130,7 @@ export function readableFg(hex: string): string {
     return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
   };
   const l = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
-  return l < 0.18 ? "#ffffff" : "#1C0716";
+  return l < 0.18 ? "#ffffff" : "#0B0B0D";
 }
 
 // A class block's colours: the picked colour when the row has one, otherwise

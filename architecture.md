@@ -4,7 +4,7 @@
 This project is a migration of the **SCJE/BSISM Student System** (BSISM — Bachelor of Science in Industrial Security Management) from a planned Flutter mobile application to a modern, fully-featured web application.
 
 ## 2. Technology Stack
-- **Frontend**: React, TypeScript, Vite, React Router. Carries over the Flutter app's Material 3 structure (Navy, Crimson, Gold accents) under a purple-red gradient identity with frosted-glass cards.
+- **Frontend**: React, TypeScript, Vite, React Router. Carries over the Flutter app's Material 3 structure (Crimson, Gold accents) under a red-black gradient identity with frosted-glass cards.
 - **PWA**: `vite-plugin-pwa` (Workbox `generateSW`) for the manifest, app-shell precache and offline data cache.
 - **Backend**: Node.js, Express, jsonwebtoken (JWT).
 - **Database**: Mock JSON (representing MIS Office data) designed to be easily swappable to PostgreSQL or MySQL in the future.
@@ -200,14 +200,14 @@ day-by-day list:
   ever reference a token by role (`--text`, `--heading`, `--surface`, `--brand`,
   `--gold`, `--grad-primary`, `--card-glass`, …), never a raw hex — which is why
   one attribute flip re-skins every screen, including inline styles on JSX.
-- **The identity is a purple-red gradient**: `--grad-primary` (dark
-  `#FF3D6E → #8A3FFC`, light `#E11D48 → #7C3AED` so white labels stay legible)
+- **The identity is a red-black gradient**: `--grad-primary` (dark
+  `#FF3D6E → #E11D48 → #18181B`, light `#E11D48 → #18181B` so white labels stay legible)
   drives pills, active nav and primary buttons; `--bg-image` paints the page
-  wash (dark: red/purple radials over a `#1C0716 → #33081D` gradient; light: a
-  soft lilac/blush wash).
+  wash (dark: red/charcoal radials over a `#1A0A0C → #0A0A0B` gradient; light: a
+  soft red-tinted wash over a near-white gradient).
 - **Text cards are frosted glass**: `.card`, `.hero` and the pinned rows use
   `--card-glass` + `backdrop-filter: var(--blur-card)` with a hairline glass
-  border, so the gradient shows through (white glass in light, dark violet
+  border, so the gradient shows through (white glass in light, dark charcoal
   frost in dark). Inputs and the navbar keep their own `--glass` tokens.
 - `theme.ts` reads the stored choice, falls back to `prefers-color-scheme`, and
   `main.tsx` applies it **before React renders**, so there is no light flash on
@@ -216,16 +216,16 @@ day-by-day list:
   over ~0.4s instead of snapping (honouring `prefers-reduced-motion`).
 - Native `<select>` options are painted with `--surface`/`--text` too, so the
   dropdown popup stays readable in dark mode.
-- `--on-gold` stays `#06263D` in both themes: gold is the brand accent used for
-  buttons, banners and badges, so its label is always the dark navy (a fixed
-  pairing instead of a token that flips and turns unreadable).
+- `--on-gold` is always a near-black (`#1A1A1C` light / `#0B0B0D` dark): gold is
+  the brand accent used for buttons, banners and badges, so its label is always
+  dark (a fixed pairing instead of a token that flips and turns unreadable).
 
 ## 6. PWA & Offline Strategy
 
 The frontend is an installable progressive web app that keeps working without a
 connection once it has been opened online.
 
-- **Manifest** (`frontend/vite.config.ts`): name *SCJE Student Hub*, `#380711`
+- **Manifest** (`frontend/vite.config.ts`): name *SCJE Student Hub*, `#111113`
   theme/background, `standalone` display, and the same four icons the Flutter
   build ships (`frontend/public/icons/`, including the maskable pair).
   `index.html` carries a matching `theme-color`, so the installed window chrome

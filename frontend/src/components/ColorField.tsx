@@ -51,7 +51,7 @@ export default function ColorField({ label, subject, value, onChange }: ColorFie
         >
           <input
             type="color"
-            value={isHexColor(value) ? value : "#8A3FFC"}
+            value={isHexColor(value) ? value : "#E11D48"}
             onChange={e => onChange(e.target.value)}
             aria-label="Custom colour"
           />
