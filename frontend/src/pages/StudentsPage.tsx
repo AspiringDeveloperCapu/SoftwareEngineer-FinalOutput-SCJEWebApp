@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { ROLE_STYLE } from "../components/RoleBadge";
 import Navbar from "../components/Navbar";
+import ColorField from "../components/ColorField";
+import { classStyle } from "../schedule";
 
 interface Account {
   id: number;
@@ -31,6 +33,7 @@ interface ScheduleItem {
   subject: string;
   room: string;
   instructor: string;
+  color?: string;
 }
 
 interface AccountDetail {
@@ -63,7 +66,7 @@ const EMPTY_ACCOUNT: AccountFormState = {
 };
 
 const EMPTY_GRADE = { code: "", description: "", units: 3, midterm: 0, finals: 0, grade: 2.0 };
-const EMPTY_CLASS = { day: "Monday", time: "", subject: "", room: "", instructor: "" };
+const EMPTY_CLASS = { day: "Monday", time: "", subject: "", room: "", instructor: "", color: "" };
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const ROLE_LABEL: Record<Account["role"], string> = {
@@ -742,6 +745,12 @@ export default function StudentsPage() {
                           Instructor
                           <input value={classForm.instructor} onChange={e => setClassForm({ ...classForm, instructor: e.target.value })} style={field} />
                         </label>
+                        <ColorField
+                          label="Block colour"
+                          subject={classForm.subject}
+                          value={classForm.color || ""}
+                          onChange={color => setClassForm({ ...classForm, color })}
+                        />
                         <div style={{ display: "flex", gap: "8px" }}>
                           <button type="submit" className="login-btn" style={{ padding: "8px 16px", fontSize: "0.9rem" }}>
                             {classForm.index === undefined ? "Add class" : "Save class"}
@@ -759,6 +768,10 @@ export default function StudentsPage() {
                           <li key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", padding: "10px 12px", backgroundColor: "var(--surface-alt)", borderRadius: "8px" }}>
                             <span style={{ minWidth: 0 }}>
                               <strong style={{ color: "var(--heading)" }}>{c.subject}</strong>
+                              <span
+                                title={c.color || "auto colour"}
+                                style={{ ...classStyle(c), display: "inline-block", width: 10, height: 10, borderRadius: "50%", marginLeft: "8px", verticalAlign: "middle", border: "1px solid var(--border-strong)" }}
+                              />
                               <span style={{ color: "var(--text-faint)", fontSize: "0.8rem", marginLeft: "8px" }}>{c.day}</span>
                               <p style={{ margin: "4px 0 0", color: "var(--text-muted)", fontSize: "0.85rem" }}>
                                 {c.time} · {c.room}{c.instructor ? ` · ${c.instructor}` : ""}

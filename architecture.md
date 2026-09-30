@@ -138,7 +138,8 @@ linking to the feed:
 - **Accounts** (`/students`, `StudentsPage.tsx`): every account with a role badge
   and role/program filter chips, a create form, and a **record hub** per account —
   edit fields (including role assignment), delete, plus inline add/edit/delete for
-  grade rows and schedule rows.
+  grade rows and schedule rows (the class form carries the block colour picker,
+  and each row shows its colour as a dot).
 - **Manage Announcements** (`/manage-announcements`): publish, edit, delete and
   pin (multi-pin: any number can stay pinned, enforced by the API); the form
   attaches a picture by file upload or image link, with a live preview.
@@ -170,6 +171,14 @@ day-by-day list:
   `POST/PUT/DELETE /api/admin/users/:id/schedule[/:rowIndex]` endpoints —
   matching rows by day+time+subject+room — so an edit lands on every student in
   that section at once. The data model stays per-student and untouched.
+- **Block colours**: both class forms (the grid's add/edit form and the record
+  hub's) carry `components/ColorField.tsx` — an *auto* swatch showing the
+  colour the subject hashes to, eight preset hues, and a native custom colour
+  input with the current hex shown beside it. The chosen `#hex` is stored on
+  each row (`color`), sanitised server-side (only real hex values are kept,
+  junk falls back to `auto`), and rendered with contrast-checked text via
+  `classStyle()`; rows without one keep the stable subject palette. Fields are
+  optional, so CSV-imported rows without a colour column work unchanged.
 
 ### Navigation Bar
 - Features the **"Administration"** dropdown. When clicked, it fetches and displays a list of current Faculty Members and Officers.

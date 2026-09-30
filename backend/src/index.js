@@ -485,12 +485,23 @@ app.delete('/api/admin/users/:id/grades/:rowIndex', authenticate, requireRole('a
 });
 
 // ─── Schedule rows (admin manages schedules) ──────────────────────────────────
+// Only real hex colours are kept (lowercased); anything else falls back to ""
+// so a block's colour comes from its subject instead.
+const scheduleColor = (value) => {
+  const v = String(value || "").trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) return v.toLowerCase();
+  const short = v.match(/^#([0-9a-fA-F]{3})$/);
+  if (short) return `#${short[1][0]}${short[1][0]}${short[1][1]}${short[1][1]}${short[1][2]}${short[1][2]}`.toLowerCase();
+  return "";
+};
+
 const scheduleRow = (row) => ({
   day: row.day || "",
   time: row.time || "",
   subject: row.subject || "",
   room: row.room || "",
-  instructor: row.instructor || ""
+  instructor: row.instructor || "",
+  color: scheduleColor(row.color)
 });
 
 app.post('/api/admin/users/:id/schedule', authenticate, requireRole('admin'), (req, res) => {

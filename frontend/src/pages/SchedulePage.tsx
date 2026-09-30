@@ -8,9 +8,10 @@ import {
   formatRange,
   formatMinutes,
   packOverlaps,
-  subjectStyle,
+  classStyle,
   normSection
 } from "../schedule";
+import ColorField from "../components/ColorField";
 
 interface RosterStudent {
   id: number;
@@ -28,6 +29,7 @@ interface FormState {
   room: string;
   instructor: string;
   section: string;
+  color: string;
 }
 
 const WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -176,7 +178,8 @@ export default function SchedulePage() {
       subject: "",
       room: "",
       instructor: "",
-      section: sectionFilter !== "all" ? sectionFilter : sectionOptions[0] || ""
+      section: sectionFilter !== "all" ? sectionFilter : sectionOptions[0] || "",
+      color: ""
     });
   };
 
@@ -192,7 +195,8 @@ export default function SchedulePage() {
       subject: row.subject,
       room: row.room,
       instructor: row.instructor,
-      section: normSection(row.section)
+      section: normSection(row.section),
+      color: row.color || ""
     });
   };
 
@@ -231,7 +235,8 @@ export default function SchedulePage() {
       time,
       subject,
       room: form.room.trim(),
-      instructor: form.instructor.trim()
+      instructor: form.instructor.trim(),
+      color: form.color
     });
 
     setSaving(true);
@@ -404,6 +409,12 @@ export default function SchedulePage() {
                   <input value={form.instructor} onChange={e => setForm({ ...form, instructor: e.target.value })} style={field} />
                 </label>
               </div>
+              <ColorField
+                label="Block colour"
+                subject={form.subject}
+                value={form.color}
+                onChange={color => setForm({ ...form, color })}
+              />
 
               {formError && <p style={{ color: "var(--danger)", margin: 0, fontSize: "0.9rem" }}>{formError}</p>}
 
@@ -477,7 +488,7 @@ export default function SchedulePage() {
                               key={`${it.row.day}-${it.row.subject}-${it.row.time}-${i}`}
                               className={`tt-block${isAdmin ? " is-editable" : ""}${isNow ? " is-now" : ""}`}
                               style={{
-                                ...subjectStyle(it.row.subject),
+                                ...classStyle(it.row),
                                 top,
                                 height,
                                 left: `calc(${(it.col * 100) / it.cols}% + 2px)`,

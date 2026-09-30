@@ -8,6 +8,7 @@ export interface ClassRow {
   subject: string;
   room: string;
   instructor: string;
+  color?: string;
   student?: string;
   section?: string;
 }
@@ -105,6 +106,40 @@ export function subjectStyle(subject: string): React.CSSProperties {
   for (let i = 0; i < subject.length; i++) hash = (hash * 31 + subject.charCodeAt(i)) >>> 0;
   const c = PALETTE[hash % PALETTE.length];
   return { backgroundColor: c.bg, color: c.fg };
+}
+
+// Swatches offered in the schedule colour pickers (identity-adjacent hues).
+export const SCHEDULE_SWATCHES = [
+  "#E11D48",
+  "#FF3D6E",
+  "#8A3FFC",
+  "#6D28D9",
+  "#F97316",
+  "#F59E0B",
+  "#10B981",
+  "#0EA5E9"
+];
+
+export const isHexColor = (value?: string) => /^#[0-9a-fA-F]{6}$/.test(value || "");
+
+// Black or white text, whichever contrasts better with the chosen colour.
+export function readableFg(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const lin = (v: number) => {
+    const s = v / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  const l = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+  return l < 0.18 ? "#ffffff" : "#1C0716";
+}
+
+// A class block's colours: the picked colour when the row has one, otherwise
+// the stable colour the subject hashes to.
+export function classStyle(row: Pick<ClassRow, "subject" | "color">): React.CSSProperties {
+  if (row.color && isHexColor(row.color)) {
+    return { backgroundColor: row.color, color: readableFg(row.color) };
+  }
+  return subjectStyle(row.subject);
 }
 
 // "1-A" and "1A" are the same section spelled two ways in the roster.
