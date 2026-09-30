@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { getSession } from "../access";
 import { buildCsv, mapGradesTable } from "../rosterCsv";
+import ImportConfirm, { PendingImport } from "../components/ImportConfirm";
 
 interface GradeItem {
   code: string;
@@ -45,6 +46,7 @@ const auth = () => ({
 export default function GradesPage() {
   const [payload, setPayload] = useState<GradesPayload | null>(null);
   const [csvMsg, setCsvMsg] = useState<string | null>(null);
+  const [pendingImport, setPendingImport] = useState<PendingImport | null>(null);
   const role = getSession()?.role || "student";
 
   const load = () => {
@@ -103,10 +105,10 @@ export default function GradesPage() {
     URL.revokeObjectURL(url);
   };
 
-  const importGradesCsv = async (file: File) => {
-    setCsvMsg(null);
-    const text = await file.text();
-    const { rows: mapped, errors } = mapGradesTable(text);
+  const applyGradesImport = async (
+    mapped: ReturnType<typeof mapGradesTable>["rows"],
+    errors: string[]
+  ) => {
     let added = 0;
     let updated = 0;
 
@@ -167,6 +169,24 @@ export default function GradesPage() {
     if (added + updated > 0) load();
   };
 
+  const importGradesCsv = async (file: File) => {
+    setCsvMsg(null);
+    const text = await file.text();
+    const { rows: mapped, errors } = mapGradesTable(text);
+    if (mapped.length === 0) {
+      setCsvMsg(
+        `Imported 0 rows${errors.length > 0 ? ` — skipped ${errors.length} (${errors.slice(0, 2).join(" / ")})` : ""}`
+      );
+      return;
+    }
+    setPendingImport({
+      name: file.name,
+      count: mapped.length,
+      skips: errors.length,
+      run: () => applyGradesImport(mapped, errors)
+    });
+  };
+
   return (
     <div className="app-container">
       <main className="main-content">
@@ -224,6 +244,8 @@ export default function GradesPage() {
           {csvMsg && (
             <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "0 0 12px" }}>{csvMsg}</p>
           )}
+
+          <ImportConfirm pending={pendingImport} onCancel={() => setPendingImport(null)} />
 
           <div className="card">
             {own !== null ? (

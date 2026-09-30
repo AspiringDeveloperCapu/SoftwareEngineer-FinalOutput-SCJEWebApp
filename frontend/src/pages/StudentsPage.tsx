@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import ColorField from "../components/ColorField";
 import { classStyle } from "../schedule";
 import { buildCsv, mapAccountsTable } from "../rosterCsv";
+import ImportConfirm, { PendingImport } from "../components/ImportConfirm";
 
 interface Account {
   id: number;
@@ -137,6 +138,7 @@ export default function StudentsPage() {
   const [classForm, setClassForm] = useState<typeof EMPTY_CLASS & { index?: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [csvMsg, setCsvMsg] = useState<string | null>(null);
+  const [pendingImport, setPendingImport] = useState<PendingImport | null>(null);
 
   const loadAccounts = () =>
     fetch("http://localhost:4000/api/admin/users", { headers: authHeaders() })
@@ -231,11 +233,10 @@ export default function StudentsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const importAccountsCsv = async (file: File) => {
-    setCsvMsg(null);
-    setError(null);
-    const text = await file.text();
-    const { rows: mapped, errors } = mapAccountsTable(text);
+  const applyAccountsImport = async (
+    mapped: ReturnType<typeof mapAccountsTable>["rows"],
+    errors: string[]
+  ) => {
     let created = 0;
     let updated = 0;
     let defaulted = 0;
@@ -316,6 +317,25 @@ export default function StudentsPage() {
     if (defaulted > 0) msg += ` · new accounts use password "password123" unless the file had one`;
     setCsvMsg(msg);
     await loadAccounts();
+  };
+
+  const importAccountsCsv = async (file: File) => {
+    setCsvMsg(null);
+    setError(null);
+    const text = await file.text();
+    const { rows: mapped, errors } = mapAccountsTable(text);
+    if (mapped.length === 0) {
+      setCsvMsg(
+        `Imported 0 rows${errors.length > 0 ? ` — skipped ${errors.length} (${errors.slice(0, 2).join(" / ")})` : ""}`
+      );
+      return;
+    }
+    setPendingImport({
+      name: file.name,
+      count: mapped.length,
+      skips: errors.length,
+      run: () => applyAccountsImport(mapped, errors)
+    });
   };
 
   const saveGrade = async (ev: React.FormEvent) => {
@@ -442,6 +462,8 @@ export default function StudentsPage() {
               {csvMsg && (
                 <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "0 0 16px" }}>{csvMsg}</p>
               )}
+
+              <ImportConfirm pending={pendingImport} onCancel={() => setPendingImport(null)} />
 
               {accountForm && (
                 <form onSubmit={saveAccount} className="card" style={{ marginBottom: "24px", display: "grid", gap: "12px" }}>

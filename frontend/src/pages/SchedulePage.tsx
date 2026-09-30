@@ -13,6 +13,7 @@ import {
 } from "../schedule";
 import ColorField from "../components/ColorField";
 import { buildCsv, mapImportTable } from "../scheduleCsv";
+import ImportConfirm, { PendingImport } from "../components/ImportConfirm";
 
 interface RosterStudent {
   id: number;
@@ -70,6 +71,7 @@ export default function SchedulePage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [importMsg, setImportMsg] = useState<string | null>(null);
+  const [pendingImport, setPendingImport] = useState<PendingImport | null>(null);
   const [now, setNow] = useState(() => new Date());
 
   const load = () => {
@@ -311,10 +313,10 @@ export default function SchedulePage() {
     URL.revokeObjectURL(url);
   };
 
-  const importCsv = async (file: File) => {
-    setImportMsg(null);
-    const text = await file.text();
-    const { rows: mapped, errors } = mapImportTable(text);
+  const applyImport = async (
+    mapped: ReturnType<typeof mapImportTable>["rows"],
+    errors: string[]
+  ) => {
     let added = 0;
 
     for (const r of mapped) {
@@ -368,6 +370,24 @@ export default function SchedulePage() {
     if (errors.length > 0) parts.push(`skipped ${errors.length} (${errors.slice(0, 2).join(" / ")})`);
     setImportMsg(parts.join(" — "));
     if (added > 0) load();
+  };
+
+  const importCsv = async (file: File) => {
+    setImportMsg(null);
+    const text = await file.text();
+    const { rows: mapped, errors } = mapImportTable(text);
+    if (mapped.length === 0) {
+      setImportMsg(
+        `Imported 0 rows${errors.length > 0 ? ` — skipped ${errors.length} (${errors.slice(0, 2).join(" / ")})` : ""}`
+      );
+      return;
+    }
+    setPendingImport({
+      name: file.name,
+      count: mapped.length,
+      skips: errors.length,
+      run: () => applyImport(mapped, errors)
+    });
   };
 
   const removeRow = async (row: ClassRow) => {
@@ -455,6 +475,8 @@ export default function SchedulePage() {
           {importMsg && (
             <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "0 0 12px" }}>{importMsg}</p>
           )}
+
+          <ImportConfirm pending={pendingImport} onCancel={() => setPendingImport(null)} />
 
           <div className="sched-controls">
             <input
