@@ -525,7 +525,6 @@ export default function StudentsPage() {
                       Section
                       <input
                         value={accountForm.section}
-                        disabled={accountForm.role !== "student"}
                         onChange={e => setAccountForm({ ...accountForm, section: e.target.value })}
                         style={field}
                       />
@@ -534,7 +533,6 @@ export default function StudentsPage() {
                       Year
                       <input
                         value={accountForm.year}
-                        disabled={accountForm.role !== "student"}
                         onChange={e => setAccountForm({ ...accountForm, year: e.target.value })}
                         style={field}
                       />
@@ -749,11 +747,11 @@ export default function StudentsPage() {
                     </label>
                     <label style={label}>
                       Section
-                      <input value={accountForm.section} disabled={accountForm.role !== "student"} onChange={e => setAccountForm({ ...accountForm, section: e.target.value })} style={field} />
+                      <input value={accountForm.section} onChange={e => setAccountForm({ ...accountForm, section: e.target.value })} style={field} />
                     </label>
                     <label style={label}>
                       Year
-                      <input value={accountForm.year} disabled={accountForm.role !== "student"} onChange={e => setAccountForm({ ...accountForm, year: e.target.value })} style={field} />
+                      <input value={accountForm.year} onChange={e => setAccountForm({ ...accountForm, year: e.target.value })} style={field} />
                     </label>
                   </div>
                   {isLastAdmin(detail.student) && (
