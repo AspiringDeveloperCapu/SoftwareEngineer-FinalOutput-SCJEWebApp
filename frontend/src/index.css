@@ -90,7 +90,7 @@
   --text-faint: #8A8A90;
   --text-dim: #E3E3E5;
 
-  --accent: #e8b5c6;       /* red-pink emphasis */
+  --accent: #f7b4c7;       /* red-pink emphasis */
   --accent-solid: #C31F4F; /* crimson fill under white text */
   --gold: #FFA8BD;         /* pins and accents read pink after dark */
   --on-gold: #0B0B0D;
@@ -111,7 +111,7 @@
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 
   /* The red-to-black combo. */
-  --grad-primary: linear-gradient(135deg, #FF3D6E 0%, #E11D48 55%, #18181B 100%);
+  --grad-primary: linear-gradient(135deg, #ae2547 0%, #a90327 55%, #3c2a2a 100%);
   --on-primary: #FFFFFF;
   --grad-bar: linear-gradient(90deg, rgba(18, 12, 13, 0.88) 0%, rgba(10, 10, 12, 0.88) 100%);
   --grad-panel: linear-gradient(135deg, rgba(255, 61, 110, 0.16) 0%, rgba(27, 24, 24, 0.2) 100%);
