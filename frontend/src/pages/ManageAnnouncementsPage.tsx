@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import ItemImage from "../components/ItemImage";
@@ -44,7 +45,7 @@ export default function ManageAnnouncementsPage() {
   const [imageError, setImageError] = useState<string | null>(null);
 
   const load = () =>
-    fetch("http://localhost:4000/api/announcements")
+    fetch(`${API_BASE}/api/announcements`)
       .then(res => res.json())
       .then(data => setAnnouncements(Array.isArray(data) ? data : []))
       .catch(err => console.error(err));
@@ -100,8 +101,8 @@ export default function ManageAnnouncementsPage() {
       return;
     }
     const url = form.id
-      ? `http://localhost:4000/api/announcements/${form.id}`
-      : "http://localhost:4000/api/announcements";
+      ? `${API_BASE}/api/announcements/${form.id}`
+      : `${API_BASE}/api/announcements`;
     try {
       const res = await fetch(url, {
         method: form.id ? "PUT" : "POST",
@@ -121,7 +122,7 @@ export default function ManageAnnouncementsPage() {
   };
 
   const togglePin = async (a: Announcement) => {
-    const res = await fetch(`http://localhost:4000/api/announcements/${a.id}`, {
+    const res = await fetch(`${API_BASE}/api/announcements/${a.id}`, {
       method: "PUT",
       headers: authHeaders(),
       body: JSON.stringify({ pinned: !a.pinned })
@@ -131,7 +132,7 @@ export default function ManageAnnouncementsPage() {
 
   const remove = async (a: Announcement) => {
     if (!window.confirm(`Delete “${a.title}”?`)) return;
-    const res = await fetch(`http://localhost:4000/api/announcements/${a.id}`, {
+    const res = await fetch(`${API_BASE}/api/announcements/${a.id}`, {
       method: "DELETE",
       headers: authHeaders()
     });

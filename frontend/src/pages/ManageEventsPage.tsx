@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import ItemImage from "../components/ItemImage";
@@ -77,7 +78,7 @@ export default function ManageEventsPage() {
   const [imageError, setImageError] = useState<string | null>(null);
 
   const load = () =>
-    fetch("http://localhost:4000/api/admin/events", { headers: authHeaders() })
+    fetch(`${API_BASE}/api/admin/events`, { headers: authHeaders() })
       .then(res => res.json())
       .then(data => setEvents(Array.isArray(data) ? data : []))
       .catch(err => console.error(err));
@@ -129,7 +130,7 @@ export default function ManageEventsPage() {
       setImageError("The picture link is not a valid image URL.");
       return;
     }
-    const url = form.id ? `http://localhost:4000/api/events/${form.id}` : "http://localhost:4000/api/events";
+    const url = form.id ? `${API_BASE}/api/events/${form.id}` : `${API_BASE}/api/events`;
     try {
       const res = await fetch(url, {
         method: form.id ? "PUT" : "POST",
@@ -149,7 +150,7 @@ export default function ManageEventsPage() {
   };
 
   const togglePin = async (e: EventItem) => {
-    const res = await fetch(`http://localhost:4000/api/events/${e.id}`, {
+    const res = await fetch(`${API_BASE}/api/events/${e.id}`, {
       method: "PUT",
       headers: authHeaders(),
       body: JSON.stringify({ pinned: !e.pinned })
@@ -159,7 +160,7 @@ export default function ManageEventsPage() {
 
   const remove = async (e: EventItem) => {
     if (!window.confirm(`Delete “${e.title}”?`)) return;
-    const res = await fetch(`http://localhost:4000/api/events/${e.id}`, {
+    const res = await fetch(`${API_BASE}/api/events/${e.id}`, {
       method: "DELETE",
       headers: authHeaders()
     });

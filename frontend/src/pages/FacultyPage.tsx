@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 
@@ -15,7 +16,7 @@ export default function FacultyPage() {
   const [filter, setFilter] = useState("All");
 
   useEffect(() => {
-    fetch("http://localhost:4000/api/faculty")
+    fetch(`${API_BASE}/api/faculty`)
       .then(res => res.json())
       .then(data => setFaculty(data))
       .catch(err => console.error(err));

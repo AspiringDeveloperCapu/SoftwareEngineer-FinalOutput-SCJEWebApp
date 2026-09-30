@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import PinnedHero, { PinSummary } from "../components/PinnedHero";
@@ -46,7 +47,7 @@ export default function InstructorDashboard() {
 
     const token = localStorage.getItem("token");
     if (token) {
-      fetch("http://localhost:4000/api/dashboard/summary", {
+      fetch(`${API_BASE}/api/dashboard/summary`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())

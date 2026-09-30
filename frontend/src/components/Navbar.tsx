@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
@@ -52,7 +53,7 @@ export default function Navbar() {
     }
     const token = localStorage.getItem("token");
     if (!token) return;
-    fetch("http://localhost:4000/api/notifications", {
+    fetch(`${API_BASE}/api/notifications`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -80,7 +81,7 @@ export default function Navbar() {
   const openAdmin = () => {
     setMenu(menu === "admin" ? null : "admin");
     if (menu !== "admin" && faculty.length === 0) {
-      fetch("http://localhost:4000/api/faculty")
+      fetch(`${API_BASE}/api/faculty`)
         .then(res => res.json())
         .then(data => setFaculty(Array.isArray(data) ? data : []))
         .catch(() => setFaculty([]));

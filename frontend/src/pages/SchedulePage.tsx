@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useMemo, useState } from "react";
 import Navbar from "../components/Navbar";
 import { getSession } from "../access";
@@ -80,13 +81,13 @@ export default function SchedulePage() {
       window.location.href = "/";
       return;
     }
-    fetch("http://localhost:4000/api/schedule", { headers: { Authorization: `Bearer ${token}` } })
+    fetch(`${API_BASE}/api/schedule`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => res.json())
       .then(data => setRows(Array.isArray(data) ? data : []))
       .catch(err => console.error(err));
 
     if (role === "admin") {
-      fetch("http://localhost:4000/api/admin/users", { headers: authHeaders() })
+      fetch(`${API_BASE}/api/admin/users`, { headers: authHeaders() })
         .then(res => res.json())
         .then(data => {
           const all = Array.isArray(data) ? data : [];
@@ -248,7 +249,7 @@ export default function SchedulePage() {
     try {
       if (form.mode === "add") {
         for (const target of targets) {
-          const res = await fetch(`http://localhost:4000/api/admin/users/${target.id}/schedule`, {
+          const res = await fetch(`${API_BASE}/api/admin/users/${target.id}/schedule`, {
             method: "POST",
             headers: authHeaders(),
             body: payload
@@ -262,13 +263,13 @@ export default function SchedulePage() {
       } else {
         const orig = form.orig!;
         for (const target of targets) {
-          const detail = await fetch(`http://localhost:4000/api/admin/users/${target.id}`, {
+          const detail = await fetch(`${API_BASE}/api/admin/users/${target.id}`, {
             headers: authHeaders()
           }).then(r => r.json());
           const list: ClassRow[] = detail?.schedule || [];
           const idx = findIndex(list, orig);
           if (idx === -1) continue;
-          const res = await fetch(`http://localhost:4000/api/admin/users/${target.id}/schedule/${idx}`, {
+          const res = await fetch(`${API_BASE}/api/admin/users/${target.id}/schedule/${idx}`, {
             method: "PUT",
             headers: authHeaders(),
             body: payload
@@ -334,7 +335,7 @@ export default function SchedulePage() {
       }
       for (const target of targets) {
         try {
-          const detail = await fetch(`http://localhost:4000/api/admin/users/${target.id}`, {
+          const detail = await fetch(`${API_BASE}/api/admin/users/${target.id}`, {
             headers: authHeaders()
           }).then(res => res.json());
           const list: ClassRow[] = detail?.schedule || [];
@@ -342,7 +343,7 @@ export default function SchedulePage() {
             x => x.day === r.day && x.time === r.time && x.subject === r.subject && (x.room || "") === (r.room || "")
           );
           if (duplicate) continue;
-          const res = await fetch(`http://localhost:4000/api/admin/users/${target.id}/schedule`, {
+          const res = await fetch(`${API_BASE}/api/admin/users/${target.id}/schedule`, {
             method: "POST",
             headers: authHeaders(),
             body: JSON.stringify({
@@ -394,13 +395,13 @@ export default function SchedulePage() {
     if (!window.confirm(`Remove “${row.subject}” (${row.time}) from this section's timetable?`)) return;
     const targets = targetsFor(normSection(row.section), row);
     for (const target of targets) {
-      const detail = await fetch(`http://localhost:4000/api/admin/users/${target.id}`, {
+      const detail = await fetch(`${API_BASE}/api/admin/users/${target.id}`, {
         headers: authHeaders()
       }).then(r => r.json());
       const list: ClassRow[] = detail?.schedule || [];
       const idx = findIndex(list, row);
       if (idx === -1) continue;
-      await fetch(`http://localhost:4000/api/admin/users/${target.id}/schedule/${idx}`, {
+      await fetch(`${API_BASE}/api/admin/users/${target.id}/schedule/${idx}`, {
         method: "DELETE",
         headers: authHeaders()
       });

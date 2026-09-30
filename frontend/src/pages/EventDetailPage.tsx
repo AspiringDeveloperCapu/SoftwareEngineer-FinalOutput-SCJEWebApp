@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -24,7 +25,7 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<EventDetail | null>(null);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/api/events/${id}`)
+    fetch(`${API_BASE}/api/events/${id}`)
       .then(res => res.json())
       .then(data => setEvent(data))
       .catch(err => console.error(err));

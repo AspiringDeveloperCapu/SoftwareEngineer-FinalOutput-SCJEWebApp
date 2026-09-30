@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import { ROLE_STYLE } from "../components/RoleBadge";
 import Navbar from "../components/Navbar";
@@ -141,13 +142,13 @@ export default function StudentsPage() {
   const [pendingImport, setPendingImport] = useState<PendingImport | null>(null);
 
   const loadAccounts = () =>
-    fetch("http://localhost:4000/api/admin/users", { headers: authHeaders() })
+    fetch(`${API_BASE}/api/admin/users`, { headers: authHeaders() })
       .then(res => res.json())
       .then(data => setAccounts(Array.isArray(data) ? data : []))
       .catch(err => console.error(err));
 
   const loadDetail = (id: number) =>
-    fetch(`http://localhost:4000/api/admin/users/${id}`, { headers: authHeaders() })
+    fetch(`${API_BASE}/api/admin/users/${id}`, { headers: authHeaders() })
       .then(res => res.json())
       .then(data => setDetail(data))
       .catch(err => console.error(err));
@@ -183,8 +184,8 @@ export default function StudentsPage() {
     if (!accountForm) return;
     setError(null);
     const url = accountForm.id
-      ? `http://localhost:4000/api/admin/users/${accountForm.id}`
-      : "http://localhost:4000/api/admin/users";
+      ? `${API_BASE}/api/admin/users/${accountForm.id}`
+      : `${API_BASE}/api/admin/users`;
     try {
       const res = await fetch(url, {
         method: accountForm.id ? "PUT" : "POST",
@@ -207,7 +208,7 @@ export default function StudentsPage() {
   const removeAccount = async (acc: Account) => {
     if (!window.confirm(`Delete the account for “${acc.name}”? This removes their grades and schedule too.`)) return;
     setError(null);
-    const res = await fetch(`http://localhost:4000/api/admin/users/${acc.id}`, {
+    const res = await fetch(`${API_BASE}/api/admin/users/${acc.id}`, {
       method: "DELETE",
       headers: authHeaders()
     });
@@ -266,7 +267,7 @@ export default function StudentsPage() {
         if (r.section) body.section = r.section;
         if (r.year) body.year = r.year;
         if (Object.keys(body).length > 0) {
-          const res = await fetch(`http://localhost:4000/api/admin/users/${target.id}`, {
+          const res = await fetch(`${API_BASE}/api/admin/users/${target.id}`, {
             method: "PUT",
             headers: authHeaders(),
             body: JSON.stringify(body)
@@ -283,7 +284,7 @@ export default function StudentsPage() {
           errors.push(`No account matches "${r.email || r.name || r.id}" and there is no name + email to create one.`);
           continue;
         }
-        const res = await fetch("http://localhost:4000/api/admin/users", {
+        const res = await fetch(`${API_BASE}/api/admin/users`, {
           method: "POST",
           headers: authHeaders(),
           body: JSON.stringify({
@@ -342,7 +343,7 @@ export default function StudentsPage() {
     ev.preventDefault();
     if (!gradeForm || !detail) return;
     setError(null);
-    const base = `http://localhost:4000/api/admin/users/${detail.student.id}/grades`;
+    const base = `${API_BASE}/api/admin/users/${detail.student.id}/grades`;
     const url = gradeForm.index === undefined ? base : `${base}/${gradeForm.index}`;
     try {
       const res = await fetch(url, {
@@ -365,7 +366,7 @@ export default function StudentsPage() {
   const removeGrade = async (index: number) => {
     if (!detail) return;
     if (!window.confirm("Remove this grade row?")) return;
-    const res = await fetch(`http://localhost:4000/api/admin/users/${detail.student.id}/grades/${index}`, {
+    const res = await fetch(`${API_BASE}/api/admin/users/${detail.student.id}/grades/${index}`, {
       method: "DELETE",
       headers: authHeaders()
     });
@@ -376,7 +377,7 @@ export default function StudentsPage() {
     ev.preventDefault();
     if (!classForm || !detail) return;
     setError(null);
-    const base = `http://localhost:4000/api/admin/users/${detail.student.id}/schedule`;
+    const base = `${API_BASE}/api/admin/users/${detail.student.id}/schedule`;
     const url = classForm.index === undefined ? base : `${base}/${classForm.index}`;
     try {
       const res = await fetch(url, {
@@ -399,7 +400,7 @@ export default function StudentsPage() {
   const removeClass = async (index: number) => {
     if (!detail) return;
     if (!window.confirm("Remove this class from the schedule?")) return;
-    const res = await fetch(`http://localhost:4000/api/admin/users/${detail.student.id}/schedule/${index}`, {
+    const res = await fetch(`${API_BASE}/api/admin/users/${detail.student.id}/schedule/${index}`, {
       method: "DELETE",
       headers: authHeaders()
     });

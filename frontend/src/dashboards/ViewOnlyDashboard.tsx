@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -69,11 +70,11 @@ export default function ViewOnlyDashboard() {
       navigate("/dashboard", { replace: true });
       return;
     }
-    fetch("http://localhost:4000/api/events")
+    fetch(`${API_BASE}/api/events`)
       .then(res => res.json())
       .then(data => setEvents(Array.isArray(data) ? data : []))
       .catch(err => console.error(err));
-    fetch("http://localhost:4000/api/announcements")
+    fetch(`${API_BASE}/api/announcements`)
       .then(res => res.json())
       .then(data => setAnnouncements(Array.isArray(data) ? data : []))
       .catch(err => console.error(err));

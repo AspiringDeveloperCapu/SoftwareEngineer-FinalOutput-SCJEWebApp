@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -44,7 +45,7 @@ export default function AdminDashboard() {
 
     const token = localStorage.getItem("token");
     if (token) {
-      fetch("http://localhost:4000/api/dashboard/summary", {
+      fetch(`${API_BASE}/api/dashboard/summary`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())

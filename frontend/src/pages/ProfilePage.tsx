@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -31,7 +32,7 @@ export default function ProfilePage() {
     if (!token) return;
 
     try {
-      const res = await fetch("http://localhost:4000/api/users/profile", {
+      const res = await fetch(`${API_BASE}/api/users/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

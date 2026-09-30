@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { getSession } from "../access";
@@ -53,7 +54,7 @@ export default function GradesPage() {
     const token = localStorage.getItem("token");
     if (!token) { window.location.href = '/'; return; }
 
-    fetch("http://localhost:4000/api/grades", {
+    fetch(`${API_BASE}/api/grades`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -114,7 +115,7 @@ export default function GradesPage() {
 
     let roster: { id: number; name: string; email: string }[] = [];
     try {
-      const data = await fetch("http://localhost:4000/api/admin/users", { headers: auth() }).then(r => r.json());
+      const data = await fetch(`${API_BASE}/api/admin/users`, { headers: auth() }).then(r => r.json());
       if (Array.isArray(data)) roster = data;
     } catch {
       // no roster — name-only matching below
@@ -130,7 +131,7 @@ export default function GradesPage() {
         continue;
       }
       try {
-        const detail = await fetch(`http://localhost:4000/api/admin/users/${target.id}`, { headers: auth() }).then(res => res.json());
+        const detail = await fetch(`${API_BASE}/api/admin/users/${target.id}`, { headers: auth() }).then(res => res.json());
         const list: GradeItem[] = detail?.grades || [];
         const idx = list.findIndex(g => g.code === r.code);
         const payload = {
@@ -143,8 +144,8 @@ export default function GradesPage() {
         };
         const res = await fetch(
           idx >= 0
-            ? `http://localhost:4000/api/admin/users/${target.id}/grades/${idx}`
-            : `http://localhost:4000/api/admin/users/${target.id}/grades`,
+            ? `${API_BASE}/api/admin/users/${target.id}/grades/${idx}`
+            : `${API_BASE}/api/admin/users/${target.id}/grades`,
           { method: idx >= 0 ? "PUT" : "POST", headers: auth(), body: JSON.stringify(payload) }
         );
         if (!res.ok) {

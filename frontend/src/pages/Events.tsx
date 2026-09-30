@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -42,11 +43,11 @@ export default function Events() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:4000/api/events")
+    fetch(`${API_BASE}/api/events`)
       .then(res => res.json())
       .then(data => setEvents(data))
       .catch(err => console.error("Error fetching events", err));
-    fetch("http://localhost:4000/api/announcements")
+    fetch(`${API_BASE}/api/announcements`)
       .then(res => res.json())
       .then(data => setAnnouncements(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error fetching announcements", err));

@@ -1,3 +1,4 @@
+import { API_BASE } from "../api";
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 
@@ -24,7 +25,7 @@ export default function ManageFacultyPage() {
   const [error, setError] = useState<string | null>(null);
 
   const load = () =>
-    fetch("http://localhost:4000/api/faculty")
+    fetch(`${API_BASE}/api/faculty`)
       .then(res => res.json())
       .then(data => setFaculty(data))
       .catch(err => console.error(err));
@@ -38,7 +39,7 @@ export default function ManageFacultyPage() {
   const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     setError(null);
-    const url = form.id ? `http://localhost:4000/api/faculty/${form.id}` : "http://localhost:4000/api/faculty";
+    const url = form.id ? `${API_BASE}/api/faculty/${form.id}` : `${API_BASE}/api/faculty`;
     try {
       const res = await fetch(url, {
         method: form.id ? "PUT" : "POST",
@@ -59,7 +60,7 @@ export default function ManageFacultyPage() {
 
   const remove = async (f: FacultyMember) => {
     if (!window.confirm(`Delete “${f.name}”?`)) return;
-    const res = await fetch(`http://localhost:4000/api/faculty/${f.id}`, {
+    const res = await fetch(`${API_BASE}/api/faculty/${f.id}`, {
       method: "DELETE",
       headers: authHeaders()
     });
