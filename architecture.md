@@ -271,5 +271,28 @@ connection once it has been opened online.
   intact. Offline rendering is a build artifact, so it is demonstrated from
   `npm run build` + `npm run preview` (port 4173).
 
+### Android / APK build (Capacitor)
+
+The same bundle ships as a native app: `frontend/android/` is a Capacitor 7
+project (`com.scje.studenthub`, *SCJE Student Hub*) wrapping `webDir: 'dist'`
+in a WebView.
+
+- **API base**: `frontend/src/api.ts` exports `API_BASE`, which defaults to
+  `http://localhost:4000` and is overridden at build time by `VITE_API_URL` —
+  a phone cannot use `localhost`, so `frontend/build-apk.ps1` bakes in this
+  machine's LAN address. The backend listens on `0.0.0.0:4000` with open CORS,
+  so it is reachable over Wi-Fi while `npm start` is running.
+- **Build**: `npm run apk` (web build with `VITE_API_URL` → `cap sync android`
+  → `gradlew assembleDebug`) produces a self-signed debug APK at
+  `android/app/build/outputs/apk/debug/app-debug.apk` for sideloading
+  (`adb install`, or copy the file to the phone).
+- **Launcher icon / splash**: generated from the department logo
+  (`frontend/resources/icon.png` ← `public/icons/SCJE-logo.jpg`) via
+  `npm run apk:assets` (`@capacitor/assets`) — every mipmap density plus the
+  adaptive-icon XMLs land in `android/…/res/`.
+- **Toolchain**: JDK 21 (in `~/.jdks`, exported as the user-level `JAVA_HOME`)
+  and the Android SDK from Android Studio; Gradle 8.11.1 arrives through the
+  wrapper, and the git-ignored `android/local.properties` points at the SDK.
+
 ## 7. Future Extensibility
 - **MIS API Integration**: The `mockData.js` file is abstracted so that it can be directly replaced by live `fetch` calls to the actual school MIS Office database.

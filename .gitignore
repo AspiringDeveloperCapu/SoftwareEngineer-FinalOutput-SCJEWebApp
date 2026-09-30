@@ -3,3 +3,12 @@ dist/
 dev-dist/
 .env
 .DS_Store
+
+# Android / Capacitor build artifacts
+frontend/android/.gradle/
+frontend/android/build/
+frontend/android/app/build/
+frontend/android/local.properties
+frontend/android/.idea/
+frontend/android/captures/
+frontend/android/.cxx/

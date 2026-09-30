@@ -84,6 +84,31 @@ from the precache, the last events/grades are still on screen, and a gold strip
 appears at the bottom saying you are offline. Deep links (`/events/5`) resolve
 the same way instead of showing a browser error.
 
+### 4. Build the Android APK (optional)
+
+The same frontend is packaged as a native Android app (*SCJE Student Hub*) with
+[Capacitor](https://capacitorjs.com) — the native project lives in
+`frontend/android/`:
+
+```bash
+cd frontend
+npm run apk
+```
+
+`build-apk.ps1` bakes this computer's **LAN address** into the web build
+(`VITE_API_URL`) so a phone on the **same Wi-Fi** can reach the backend — keep
+`npm start` running and allow node through the Windows firewall if the phone
+cannot connect. The script prints the finished file:
+
+```
+frontend/android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Copy it to a phone and open it to install (enable *install unknown apps*), or
+deploy it with `adb install app-debug.apk`. Re-run `npm run apk` whenever your
+IP changes; regenerate the logo launcher icon with `npm run apk:assets`.
+Requires JDK 21 and the Android SDK (both come with Android Studio).
+
 ---
 
 ## 🧪 Demo Login Credentials

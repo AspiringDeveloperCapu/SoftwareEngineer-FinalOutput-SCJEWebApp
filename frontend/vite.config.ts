@@ -82,10 +82,10 @@ export default defineConfig({
     port: 4173,
   },
   build: {
-    outDir: '../dist',
-    // outDir sits outside the root, so Vite skips the empty step by default.
-    // Without it every rebuild leaves the previous hashed bundle behind, and
-    // the PWA precaches whatever is in the folder - stale files included.
+    // Inside the project root so Capacitor can package it (webDir: "dist").
+    // emptyOutDir forces a clean sweep on every rebuild so the PWA precache
+    // never picks up stale hashed files.
+    outDir: 'dist',
     emptyOutDir: true,
   },
 });
