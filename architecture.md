@@ -226,8 +226,9 @@ The frontend is an installable progressive web app that keeps working without a
 connection once it has been opened online.
 
 - **Manifest** (`frontend/vite.config.ts`): name *SCJE Student Hub*, `#111113`
-  theme/background, `standalone` display, and the same four icons the Flutter
-  build ships (`frontend/public/icons/`, including the maskable pair).
+  theme/background, `standalone` display, and four icons generated from the
+  department logo (`frontend/public/icons/` — 192/512 plus the maskable pair;
+  `SCJE-logo.jpg` at 1242² is the source and also the favicon).
   `index.html` carries a matching `theme-color`, so the installed window chrome
   and the browser tab agree.
 - **App-shell precache**: Workbox precaches `index.html`, the hashed JS/CSS and

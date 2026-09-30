@@ -7,7 +7,6 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png'],
       manifest: {
         name: 'SCJE Student Hub',
         short_name: 'SCJE Hub',

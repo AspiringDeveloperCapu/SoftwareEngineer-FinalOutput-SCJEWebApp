@@ -85,12 +85,12 @@
   --surface-2: #242427;
 
   --text: #EDEDEF;
-  --heading: #FF6B84;
+  --heading: #f70f36;
   --text-muted: #B8B8BD;
   --text-faint: #8A8A90;
   --text-dim: #E3E3E5;
 
-  --accent: #FF7EA8;       /* red-pink emphasis */
+  --accent: #e8b5c6;       /* red-pink emphasis */
   --accent-solid: #C31F4F; /* crimson fill under white text */
   --gold: #FFA8BD;         /* pins and accents read pink after dark */
   --on-gold: #0B0B0D;
@@ -114,7 +114,7 @@
   --grad-primary: linear-gradient(135deg, #FF3D6E 0%, #E11D48 55%, #18181B 100%);
   --on-primary: #FFFFFF;
   --grad-bar: linear-gradient(90deg, rgba(18, 12, 13, 0.88) 0%, rgba(10, 10, 12, 0.88) 100%);
-  --grad-panel: linear-gradient(135deg, rgba(255, 61, 110, 0.16) 0%, rgba(24, 24, 27, 0.20) 100%);
+  --grad-panel: linear-gradient(135deg, rgba(255, 61, 110, 0.16) 0%, rgba(27, 24, 24, 0.2) 100%);
   --grad-ink: linear-gradient(90deg, #FF6B84 0%, #FF3D6E 100%);
   --bg-image:
     radial-gradient(1100px 520px at 12% -8%, rgba(255, 61, 110, 0.14), transparent 62%),
