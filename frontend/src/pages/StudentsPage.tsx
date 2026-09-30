@@ -3,6 +3,7 @@ import { ROLE_STYLE } from "../components/RoleBadge";
 import Navbar from "../components/Navbar";
 import ColorField from "../components/ColorField";
 import { classStyle } from "../schedule";
+import { buildCsv, mapAccountsTable } from "../rosterCsv";
 
 interface Account {
   id: number;
@@ -96,6 +97,17 @@ const label: React.CSSProperties = {
   color: "var(--text-muted)"
 };
 
+const secondaryBtn: React.CSSProperties = {
+  padding: "9px 14px",
+  borderRadius: "8px",
+  border: "1px solid var(--border-strong)",
+  backgroundColor: "var(--surface)",
+  color: "var(--text)",
+  cursor: "pointer",
+  fontWeight: 600,
+  fontSize: "0.88rem"
+};
+
 const RoleBadge = ({ role }: { role: Account["role"] }) => (
   <span
     style={{
@@ -124,6 +136,7 @@ export default function StudentsPage() {
   const [gradeForm, setGradeForm] = useState<typeof EMPTY_GRADE & { index?: number } | null>(null);
   const [classForm, setClassForm] = useState<typeof EMPTY_CLASS & { index?: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [csvMsg, setCsvMsg] = useState<string | null>(null);
 
   const loadAccounts = () =>
     fetch("http://localhost:4000/api/admin/users", { headers: authHeaders() })
@@ -202,6 +215,106 @@ export default function StudentsPage() {
       return;
     }
     setDetail(null);
+    await loadAccounts();
+  };
+
+  const exportAccountsCsv = () => {
+    const csv = buildCsv(
+      ["id", "name", "email", "role", "program", "section", "year", "department"],
+      accounts.map(a => [a.id, a.name, a.email, a.role, a.course, a.section, a.year, a.department])
+    );
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "scje-accounts.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importAccountsCsv = async (file: File) => {
+    setCsvMsg(null);
+    setError(null);
+    const text = await file.text();
+    const { rows: mapped, errors } = mapAccountsTable(text);
+    let created = 0;
+    let updated = 0;
+    let defaulted = 0;
+
+    for (const r of mapped) {
+      const target =
+        (r.email ? accounts.find(a => a.email.toLowerCase() === r.email!.toLowerCase()) : undefined) ||
+        (r.id ? accounts.find(a => String(a.id) === r.id) : undefined) ||
+        (r.name
+          ? accounts.find(
+              a =>
+                a.name.toLowerCase() === r.name!.toLowerCase() &&
+                (!r.section || a.section.toLowerCase() === r.section!.toLowerCase())
+            )
+          : undefined);
+
+      if (target) {
+        const body: Record<string, string> = {};
+        if (r.name && r.name !== target.name) body.name = r.name;
+        if (r.email && r.email.toLowerCase() !== target.email.toLowerCase()) body.email = r.email;
+        if (r.role && r.role !== target.role) {
+          if (isLastAdmin(target)) errors.push(`${r.name || r.email}: the last administrator keeps their role.`);
+          else body.role = r.role;
+        }
+        if (r.department) body.department = r.department;
+        if (r.course) body.course = r.course;
+        if (r.section) body.section = r.section;
+        if (r.year) body.year = r.year;
+        if (Object.keys(body).length > 0) {
+          const res = await fetch(`http://localhost:4000/api/admin/users/${target.id}`, {
+            method: "PUT",
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            errors.push(`${r.name || r.email}: ${data.message || "could not save"}.`);
+            continue;
+          }
+        }
+        updated++;
+      } else {
+        if (!r.name || !r.email) {
+          errors.push(`No account matches "${r.email || r.name || r.id}" and there is no name + email to create one.`);
+          continue;
+        }
+        const res = await fetch("http://localhost:4000/api/admin/users", {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            name: r.name,
+            email: r.email,
+            password: r.password || "password123",
+            role: r.role || "student",
+            department: r.department || "SCJE",
+            course: r.course || "",
+            section: r.section || "",
+            year: r.year || ""
+          })
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          errors.push(`${r.name}: ${data.message || "could not create"}.`);
+          continue;
+        }
+        if (!r.password) defaulted++;
+        created++;
+      }
+    }
+
+    const parts = [`Imported ${created + updated} row${created + updated === 1 ? "" : "s"}`];
+    const bits: string[] = [];
+    if (created) bits.push(`created ${created}`);
+    if (updated) bits.push(`updated ${updated}`);
+    if (bits.length) parts.push(bits.join(", "));
+    if (errors.length > 0) parts.push(`skipped ${errors.length} (${errors.slice(0, 2).join(" / ")})`);
+    let msg = parts.join(" — ");
+    if (defaulted > 0) msg += ` · new accounts use password "password123" unless the file had one`;
+    setCsvMsg(msg);
     await loadAccounts();
   };
 
@@ -300,6 +413,20 @@ export default function StudentsPage() {
                   <span style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
                     {filtered.length} of {accounts.length} accounts
                   </span>
+                  <button type="button" onClick={exportAccountsCsv} style={secondaryBtn}>Export CSV</button>
+                  <label style={{ ...secondaryBtn, display: "inline-flex", alignItems: "center" }}>
+                    Import CSV
+                    <input
+                      type="file"
+                      accept=".csv,text/csv"
+                      hidden
+                      onChange={e => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        if (file) importAccountsCsv(file);
+                      }}
+                    />
+                  </label>
                   {!accountForm && (
                     <button
                       className="login-btn"
@@ -311,6 +438,10 @@ export default function StudentsPage() {
                   )}
                 </div>
               </div>
+
+              {csvMsg && (
+                <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "0 0 16px" }}>{csvMsg}</p>
+              )}
 
               {accountForm && (
                 <form onSubmit={saveAccount} className="card" style={{ marginBottom: "24px", display: "grid", gap: "12px" }}>

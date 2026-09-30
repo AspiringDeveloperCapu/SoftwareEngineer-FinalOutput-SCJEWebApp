@@ -139,7 +139,22 @@ linking to the feed:
   and role/program filter chips, a create form, and a **record hub** per account —
   edit fields (including role assignment), delete, plus inline add/edit/delete for
   grade rows and schedule rows (the class form carries the block colour picker,
-  and each row shows its colour as a dot).
+  and each row shows its colour as a dot). The header carries **Export/Import
+  CSV** for the MIS roster (`rosterCsv.ts`): export dumps
+  `id,name,email,role,program,section,year,department`; import matches rows by
+  email, then id, then name (+ section) — matches are updated in place, unknown
+  rows are created (default password `password123` unless the file has a
+  `password` column), roles and programs are normalised (`Faculty` →
+  instructor, `BSCRIM` → `BS Criminology`, `BSISM` → `BS Industrial Security
+  Management`, …) and a summary line reports created/updated/skipped.
+- **Grades** (`/grades`, `GradesPage.tsx`): students see their own rows;
+  instructors and admins see the per-student table (GPA per student). Admins
+  get the same **Export/Import CSV** pair: export writes
+  `id,student,section,program,code,description,units,midterm,finals,grade`
+  (own-scope export drops the student columns), import resolves each row to an
+  account by email, then id, then name, updates the row for an existing course
+  code or appends a new one, and rejects rows without a code or a numeric
+  grade.
 - **Manage Announcements** (`/manage-announcements`): publish, edit, delete and
   pin (multi-pin: any number can stay pinned, enforced by the API); the form
   attaches a picture by file upload or image link, with a live preview.

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { getSession } from "../access";
+import { buildCsv, mapGradesTable } from "../rosterCsv";
 
 interface GradeItem {
   code: string;
@@ -25,11 +26,28 @@ type GradesPayload =
   | { scope: "own"; grades: GradeItem[] }
   | { scope: "department" | "all"; students: StudentGrades[] };
 
+const secondaryBtn: React.CSSProperties = {
+  padding: "9px 14px",
+  borderRadius: "8px",
+  border: "1px solid var(--border-strong)",
+  backgroundColor: "var(--surface)",
+  color: "var(--text)",
+  cursor: "pointer",
+  fontWeight: 600,
+  fontSize: "0.88rem"
+};
+
+const auth = () => ({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${localStorage.getItem("token")}`
+});
+
 export default function GradesPage() {
   const [payload, setPayload] = useState<GradesPayload | null>(null);
+  const [csvMsg, setCsvMsg] = useState<string | null>(null);
   const role = getSession()?.role || "student";
 
-  useEffect(() => {
+  const load = () => {
     const token = localStorage.getItem("token");
     if (!token) { window.location.href = '/'; return; }
 
@@ -39,7 +57,9 @@ export default function GradesPage() {
       .then(res => res.json())
       .then(data => setPayload(data))
       .catch(err => console.error(err));
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
 
   const own = payload && payload.scope === "own" ? payload.grades : null;
   const students = payload && payload.scope !== "own" ? payload.students : null;
@@ -60,6 +80,93 @@ export default function GradesPage() {
 
   const title = role === "admin" ? "Grades — All Students" : "Grades — Department";
 
+  const exportGradesCsv = () => {
+    let csv: string;
+    if (own) {
+      csv = buildCsv(
+        ["code", "description", "units", "midterm", "finals", "grade"],
+        own.map(g => [g.code, g.description, g.units, g.midterm, g.finals, g.grade])
+      );
+    } else {
+      csv = buildCsv(
+        ["id", "student", "section", "program", "code", "description", "units", "midterm", "finals", "grade"],
+        (students || []).flatMap(s =>
+          s.grades.map(g => [s.id, s.name, s.section, s.program, g.code, g.description, g.units, g.midterm, g.finals, g.grade])
+        )
+      );
+    }
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "scje-grades.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importGradesCsv = async (file: File) => {
+    setCsvMsg(null);
+    const text = await file.text();
+    const { rows: mapped, errors } = mapGradesTable(text);
+    let added = 0;
+    let updated = 0;
+
+    let roster: { id: number; name: string; email: string }[] = [];
+    try {
+      const data = await fetch("http://localhost:4000/api/admin/users", { headers: auth() }).then(r => r.json());
+      if (Array.isArray(data)) roster = data;
+    } catch {
+      // no roster — name-only matching below
+    }
+
+    for (const r of mapped) {
+      const target =
+        (r.email ? roster.find(a => a.email.toLowerCase() === r.email!.toLowerCase()) : undefined) ||
+        (r.id ? roster.find(a => String(a.id) === r.id) : undefined) ||
+        (r.student ? roster.find(a => a.name.toLowerCase() === r.student!.toLowerCase()) : undefined);
+      if (!target) {
+        errors.push(`No account matches "${r.email || r.student || r.id}" (${r.code}).`);
+        continue;
+      }
+      try {
+        const detail = await fetch(`http://localhost:4000/api/admin/users/${target.id}`, { headers: auth() }).then(res => res.json());
+        const list: GradeItem[] = detail?.grades || [];
+        const idx = list.findIndex(g => g.code === r.code);
+        const payload = {
+          code: r.code,
+          description: r.description,
+          units: r.units,
+          midterm: r.midterm,
+          finals: r.finals,
+          grade: r.grade
+        };
+        const res = await fetch(
+          idx >= 0
+            ? `http://localhost:4000/api/admin/users/${target.id}/grades/${idx}`
+            : `http://localhost:4000/api/admin/users/${target.id}/grades`,
+          { method: idx >= 0 ? "PUT" : "POST", headers: auth(), body: JSON.stringify(payload) }
+        );
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          errors.push(`${target.name} ${r.code}: ${data.message || "could not save"}.`);
+          continue;
+        }
+        if (idx >= 0) updated++;
+        else added++;
+      } catch {
+        errors.push(`${r.code}: could not reach the server.`);
+      }
+    }
+
+    const parts = [`Imported ${added + updated} row${added + updated === 1 ? "" : "s"}`];
+    const bits: string[] = [];
+    if (added) bits.push(`added ${added}`);
+    if (updated) bits.push(`updated ${updated}`);
+    if (bits.length) parts.push(bits.join(", "));
+    if (errors.length > 0) parts.push(`skipped ${errors.length} (${errors.slice(0, 2).join(" / ")})`);
+    setCsvMsg(parts.join(" — "));
+    if (added + updated > 0) load();
+  };
+
   return (
     <div className="app-container">
       <main className="main-content">
@@ -69,7 +176,24 @@ export default function GradesPage() {
             <h2 style={{ color: "var(--heading)", margin: 0 }}>
               {own !== null ? "Achievements / Grades" : title}
             </h2>
-            <div style={{ display: "flex", gap: "16px" }}>
+            <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+              <button type="button" onClick={exportGradesCsv} disabled={!payload} style={secondaryBtn}>Export CSV</button>
+              {role === "admin" && own === null && (
+                <label style={{ ...secondaryBtn, display: "inline-flex", alignItems: "center" }}>
+                  Import CSV
+                  <input
+                    type="file"
+                    accept=".csv,text/csv"
+                    hidden
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (file) importGradesCsv(file);
+                    }}
+                  />
+                </label>
+              )}
+              <div style={{ display: "flex", gap: "16px" }}>
               {own !== null ? (
                 <>
                   <div className="card" style={{ padding: "12px 24px", textAlign: "center", margin: 0 }}>
@@ -93,8 +217,13 @@ export default function GradesPage() {
                   </div>
                 </>
               )}
+              </div>
             </div>
           </div>
+
+          {csvMsg && (
+            <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "0 0 12px" }}>{csvMsg}</p>
+          )}
 
           <div className="card">
             {own !== null ? (
