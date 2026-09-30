@@ -97,7 +97,7 @@ export default function PinnedHero({ user, subtitle, pins, fallbackBadge }: Prop
         </div>
 
         <div className="intro-art" aria-hidden="true">
-          <span>🎓</span>
+          <img className="intro-art-logo" src="/icons/SCJE-logo.jpg" alt="" />
         </div>
       </div>
     </section>

@@ -134,7 +134,9 @@ export default function Navbar() {
   return (
     <header className="navbar" ref={headerRef}>
       <Link to={user ? "/dashboard" : "/"} className="nav-brand">
-        <span className="nav-mark">🎓</span>
+        <span className="nav-mark">
+          <img src="/icons/SCJE-logo.jpg" alt="" />
+        </span>
         <span className="nav-title">SCJE Student Hub</span>
       </Link>
 

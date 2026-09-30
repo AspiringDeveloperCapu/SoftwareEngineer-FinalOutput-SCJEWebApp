@@ -159,7 +159,7 @@ export default function ViewOnlyDashboard() {
                 </div>
 
                 <div className="intro-art intro-art--banner" aria-hidden="true">
-                  <span>🏫</span>
+                  <img className="intro-art-logo" src="/icons/SCJE-logo.jpg" alt="" />
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "12px", marginTop: "20px" }}>

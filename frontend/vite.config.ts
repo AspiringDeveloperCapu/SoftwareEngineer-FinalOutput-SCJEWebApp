@@ -19,6 +19,7 @@ export default defineConfig({
       background_color: '#111113',
       theme_color: '#111113',
         icons: [
+          { src: 'icons/SCJE-logo.jpg', sizes: '1242x1242', type: 'image/jpeg' },
           { src: 'icons/Icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/Icon-512.png', sizes: '512x512', type: 'image/png' },
           {
@@ -36,7 +37,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico,woff2,webmanifest}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
