@@ -12,10 +12,12 @@ import {
   normSection
 } from "../schedule";
 import ColorField from "../components/ColorField";
+import { buildCsv, mapImportTable } from "../scheduleCsv";
 
 interface RosterStudent {
   id: number;
   name: string;
+  email?: string;
   section: string;
 }
 
@@ -67,6 +69,7 @@ export default function SchedulePage() {
   const [form, setForm] = useState<FormState | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [importMsg, setImportMsg] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
 
   const load = () => {
@@ -283,6 +286,90 @@ export default function SchedulePage() {
     }
   };
 
+  const exportCsv = () => {
+    const emailOf = (name?: string) => roster.find(s => s.name === name)?.email || "";
+    const body = rows.map(r => [
+      r.student || "",
+      r.student ? emailOf(r.student) : "",
+      r.section || "",
+      r.day,
+      r.time,
+      r.subject,
+      r.room || "",
+      r.instructor || "",
+      r.color || ""
+    ]);
+    const csv = buildCsv(
+      ["student", "email", "section", "day", "time", "subject", "room", "instructor", "color"],
+      body
+    );
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "scje-schedule.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importCsv = async (file: File) => {
+    setImportMsg(null);
+    const text = await file.text();
+    const { rows: mapped, errors } = mapImportTable(text);
+    let added = 0;
+
+    for (const r of mapped) {
+      let targets: RosterStudent[] = [];
+      if (r.email) {
+        targets = roster.filter(s => s.email?.toLowerCase() === r.email!.toLowerCase());
+      } else if (r.student) {
+        targets = roster.filter(s => s.name.toLowerCase() === r.student!.toLowerCase());
+      } else if (r.section) {
+        targets = roster.filter(s => normSection(s.section) === normSection(r.section));
+      }
+      if (targets.length === 0) {
+        errors.push(`No student matches "${r.email || r.student || r.section}" (${r.subject}).`);
+        continue;
+      }
+      for (const target of targets) {
+        try {
+          const detail = await fetch(`http://localhost:4000/api/admin/users/${target.id}`, {
+            headers: authHeaders()
+          }).then(res => res.json());
+          const list: ClassRow[] = detail?.schedule || [];
+          const duplicate = list.some(
+            x => x.day === r.day && x.time === r.time && x.subject === r.subject && (x.room || "") === (r.room || "")
+          );
+          if (duplicate) continue;
+          const res = await fetch(`http://localhost:4000/api/admin/users/${target.id}/schedule`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({
+              day: r.day,
+              time: r.time,
+              subject: r.subject,
+              room: r.room || "",
+              instructor: r.instructor || "",
+              color: r.color || ""
+            })
+          });
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            errors.push(`${r.subject}: ${body.message || "could not save"}.`);
+            continue;
+          }
+          added++;
+        } catch {
+          errors.push(`${r.subject}: could not reach the server.`);
+        }
+      }
+    }
+
+    const parts = [`Imported ${added} row${added === 1 ? "" : "s"}`];
+    if (errors.length > 0) parts.push(`skipped ${errors.length} (${errors.slice(0, 2).join(" / ")})`);
+    setImportMsg(parts.join(" — "));
+    if (added > 0) load();
+  };
+
   const removeRow = async (row: ClassRow) => {
     if (!window.confirm(`Remove “${row.subject}” (${row.time}) from this section's timetable?`)) return;
     const targets = targetsFor(normSection(row.section), row);
@@ -310,6 +397,17 @@ export default function SchedulePage() {
     fontSize: "0.95rem"
   };
 
+  const secondaryBtn: React.CSSProperties = {
+    padding: "9px 14px",
+    borderRadius: "8px",
+    border: "1px solid var(--border-strong)",
+    backgroundColor: "var(--surface)",
+    color: "var(--text)",
+    cursor: "pointer",
+    fontWeight: 600,
+    fontSize: "0.88rem"
+  };
+
   const isAdmin = role === "admin";
 
   return (
@@ -328,13 +426,35 @@ export default function SchedulePage() {
                     : "Your classes for the week, laid out on the weekly grid."}
               </p>
             </div>
-            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
               <span style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>{visible.length} classes</span>
+              {isAdmin && (
+                <>
+                  <button type="button" onClick={exportCsv} style={secondaryBtn}>Export CSV</button>
+                  <label style={{ ...secondaryBtn, display: "inline-flex", alignItems: "center" }}>
+                    Import CSV
+                    <input
+                      type="file"
+                      accept=".csv,text/csv"
+                      hidden
+                      onChange={e => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        if (file) importCsv(file);
+                      }}
+                    />
+                  </label>
+                </>
+              )}
               {isAdmin && !form && (
                 <button className="login-btn" onClick={openAdd} style={{ padding: "10px 18px" }}>+ Add class</button>
               )}
             </div>
           </div>
+
+          {importMsg && (
+            <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: "0 0 12px" }}>{importMsg}</p>
+          )}
 
           <div className="sched-controls">
             <input

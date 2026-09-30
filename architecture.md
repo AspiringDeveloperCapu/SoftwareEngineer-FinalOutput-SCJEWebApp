@@ -179,6 +179,16 @@ day-by-day list:
   junk falls back to `auto`), and rendered with contrast-checked text via
   `classStyle()`; rows without one keep the stable subject palette. Fields are
   optional, so CSV-imported rows without a colour column work unchanged.
+- **CSV export/import** (admin buttons on the same page, `scheduleCsv.ts`):
+  *Export CSV* downloads `student,email,section,day,time,subject,room,instructor,color`.
+  *Import CSV* reads a file through the hidden input, parses it with a
+  quote-aware parser and maps columns tolerantly — headers are matched by
+  aliases (`course`/`subject`, `teacher`/`instructor`, `weekday`/`day`,
+  separate `start`/`end` times, `colour`/`color`, …) and a headerless file
+  falls back to a fixed column order. Rows resolve to students by email, then
+  name, then whole section; times are normalised to the system's
+  `7:30 AM - 9:00 AM` format, duplicates are skipped, and a summary line
+  ("Imported N rows — skipped M (…)") reports the result.
 
 ### Navigation Bar
 - Features the **"Administration"** dropdown. When clicked, it fetches and displays a list of current Faculty Members and Officers.
