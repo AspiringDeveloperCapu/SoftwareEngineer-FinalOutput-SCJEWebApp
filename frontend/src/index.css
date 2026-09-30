@@ -79,7 +79,7 @@
   color-scheme: dark;
 
   /* Red + black, from the page background up. */
-  --bg: #0B0B0D;
+  --bg: #130A0C;
   --surface: #141416;
   --surface-alt: #1B1B1E;
   --surface-2: #242427;
@@ -117,9 +117,10 @@
   --grad-panel: linear-gradient(135deg, rgba(255, 61, 110, 0.16) 0%, rgba(27, 24, 24, 0.2) 100%);
   --grad-ink: linear-gradient(90deg, #FF6B84 0%, #FF3D6E 100%);
   --bg-image:
-    radial-gradient(1100px 520px at 12% -8%, rgba(255, 61, 110, 0.14), transparent 62%),
-    radial-gradient(900px 460px at 88% -4%, rgba(17, 7, 9, 0.30), transparent 62%),
-    linear-gradient(165deg, #1A0A0C 0%, #121011 48%, #0A0A0B 100%);
+    radial-gradient(1300px 700px at 12% -10%, rgba(255, 61, 110, 0.30), transparent 65%),
+    radial-gradient(1100px 650px at 92% -6%, rgba(169, 3, 39, 0.34), transparent 66%),
+    radial-gradient(1000px 800px at 50% 115%, rgba(120, 15, 40, 0.22), transparent 70%),
+    linear-gradient(165deg, #241015 0%, #170D10 45%, #0C0A0B 100%);
 
   /* Frosted glass reads darker here so text stays legible over the wash. */
   --glass: rgba(255, 255, 255, 0.07);
